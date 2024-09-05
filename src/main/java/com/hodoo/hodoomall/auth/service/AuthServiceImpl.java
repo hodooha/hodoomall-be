@@ -14,7 +14,7 @@ public class AuthServiceImpl implements AuthService{
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     public UserDTO loginWithEmail(UserDTO userDTO) throws Exception {
