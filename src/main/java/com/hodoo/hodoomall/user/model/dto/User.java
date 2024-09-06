@@ -1,7 +1,9 @@
 package com.hodoo.hodoomall.user.model.dto;
 
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -14,7 +16,10 @@ public class User {
     private String email;
     private String password;
     private String name;
-    private String level;
+    private String level = "customer";
+
+    @CreatedDate
     private LocalDateTime createdAt;
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 }

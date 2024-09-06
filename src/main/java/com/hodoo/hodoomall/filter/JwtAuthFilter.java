@@ -24,29 +24,31 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // Authorization 헤더에서 토큰 추출
         String tokenString = request.getHeader("Authorization");
-
 
         if(tokenString != null && tokenString.startsWith("Bearer ")){
             String token = tokenString.replace("Bearer ", "");
 
             // 토큰 유효성 검사
             if(jwtTokenProvider.validateToken(token)){
+                try {
+                    // 토큰에서 사용자 ID 추출
+                    String userId = jwtTokenProvider.getUserId(token);
+                    // 사용자 정보 로드
+                    UserDetails userDetails = customUserDetailService.loadUserByUsername(userId);
 
-                // 토큰에서 사용자 ID 추출
-                String userId = jwtTokenProvider.getUserId(token);
-                // 사용자 정보 로드
-                UserDetails userDetails = customUserDetailService.loadUserByUsername(userId);
+                    // Spring Security의 인증 객체 설정
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-                // Spring Security의 인증 객체 설정
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-                //현재 Request의 Security Context에 접근권한 설정
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    //현재 Request의 Security Context에 접근권한 설정
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                } catch (Exception e){
+                    System.out.println("인증 오류 : " + e.getMessage());
+                }
             }
 
-            filterChain.doFilter(request, response); // 다음 필터로 넘기기
-
         }
+        filterChain.doFilter(request, response); // 다음 필터로 넘기기
     }
 }
