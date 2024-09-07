@@ -4,10 +4,7 @@ import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import com.hodoo.hodoomall.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -30,6 +27,5 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
         }
     }
-
 
 }

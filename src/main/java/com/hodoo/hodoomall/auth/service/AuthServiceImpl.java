@@ -22,7 +22,7 @@ public class AuthServiceImpl implements AuthService{
         User user = userRepository.findByEmail(userDTO.getEmail());
 
         if(user == null){
-            throw new Exception("일치하는 이메일 계정이 없습니다.");
+            return null;
         }
 
         if(!bCryptPasswordEncoder.matches(userDTO.getPassword(), user.getPassword())){
