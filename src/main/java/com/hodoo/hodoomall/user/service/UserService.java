@@ -6,4 +6,5 @@ public interface UserService {
     void createUser(UserDTO userDTO) throws Exception;
 
 
+    UserDTO getUser() throws Exception;
 }

@@ -1,9 +1,11 @@
 package com.hodoo.hodoomall.user.service;
 
 import com.hodoo.hodoomall.user.model.dao.UserRepository;
+import com.hodoo.hodoomall.user.model.dto.CustomUserDetails;
 import com.hodoo.hodoomall.user.model.dto.User;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,19 @@ public class UserServiceImpl implements UserService{
         newUser.setLevel(userDTO.getLevel() != null ? userDTO.getLevel() : "customer");
 
         userRepository.save(newUser);
+    }
+
+    @Override
+    public UserDTO getUser() throws Exception {
+
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setEmail(userDetails.getUser().getEmail());
+        userDTO.setName(userDetails.getUser().getName());
+        userDTO.setLevel(userDetails.getUser().getLevel());
+
+        return userDTO;
     }
 
 

@@ -2,6 +2,7 @@ package com.hodoo.hodoomall.auth.service;
 
 import com.hodoo.hodoomall.auth.util.JwtTokenProvider;
 import com.hodoo.hodoomall.user.model.dao.UserRepository;
+import com.hodoo.hodoomall.user.model.dto.RequestUserDTO;
 import com.hodoo.hodoomall.user.model.dto.User;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +18,12 @@ public class AuthServiceImpl implements AuthService{
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    public UserDTO loginWithEmail(UserDTO userDTO) throws Exception {
+    public UserDTO loginWithEmail(RequestUserDTO userDTO) throws Exception {
 
         User user = userRepository.findByEmail(userDTO.getEmail());
 
         if(user == null){
-            return null;
+            throw new Exception("일치하는 이메일 계정이 없습니다.");
         }
 
         if(!bCryptPasswordEncoder.matches(userDTO.getPassword(), user.getPassword())){
@@ -41,4 +42,6 @@ public class AuthServiceImpl implements AuthService{
 
         return loginUser;
     }
+
+
 }
