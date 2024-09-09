@@ -1,5 +1,6 @@
 package com.hodoo.hodoomall.user.model.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -13,9 +14,17 @@ import java.time.LocalDateTime;
 public class User {
     @Id
     private String id;
+
+    @NotBlank
     private String email;
+
+    @NotBlank
     private String password;
+
+    @NotBlank
     private String name;
+
+    @NotBlank
     private String level = "customer";
 
     @CreatedDate

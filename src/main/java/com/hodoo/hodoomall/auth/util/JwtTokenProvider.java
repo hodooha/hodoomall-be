@@ -24,8 +24,15 @@ public class JwtTokenProvider {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(String userId) {
+    public String createToken(String userId, String level) {
         Claims claims = Jwts.claims().setSubject(userId);
+        String role;
+        if(level.equals("admin")){
+            role = "ROLE_ADMIN";
+        } else{
+            role = "ROLE_USER";
+        }
+        claims.put("role", role);
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessTokenExpTime);
 
@@ -63,5 +70,18 @@ public class JwtTokenProvider {
         return claims.getSubject();
 
     }
+
+    // JWT에서 사용자 권한 추출
+    public String getRole(String token){
+
+        return Jwts.parserBuilder()
+                .setSigningKey(this.getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+    }
+
+
 
 }

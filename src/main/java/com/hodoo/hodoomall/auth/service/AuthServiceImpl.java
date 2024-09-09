@@ -41,7 +41,7 @@ public class AuthServiceImpl implements AuthService{
         }
 
         // JWT 토큰 생성
-        String token = jwtTokenProvider.createToken(loginUser.getId());
+        String token = jwtTokenProvider.createToken(loginUser.getId(), loginUser.getLevel());
 
         // UserDTO에 토큰 추가
         loginUser.setToken(token);
@@ -60,9 +60,9 @@ public class AuthServiceImpl implements AuthService{
 
         GoogleIdToken idToken = verifier.verify(token);
         System.out.println(idToken);
-//        if(idToken == null){
-//            throw new Exception("Invalid Google token");
-//        }
+        if(idToken == null){
+            throw new Exception("Invalid Google token");
+        }
         GoogleIdToken.Payload payload = idToken.getPayload();
         String email = payload.getEmail();
         String name = (String) payload.get("name");
@@ -77,7 +77,7 @@ public class AuthServiceImpl implements AuthService{
             loginUser = userService.createUserWithGoogle(email, name, randomPassword);
         }
 
-        String jwtToken = jwtTokenProvider.createToken(loginUser.getId());
+        String jwtToken = jwtTokenProvider.createToken(loginUser.getId(), loginUser.getLevel());
 
         loginUser.setPassword(null);
         loginUser.setToken(jwtToken);
