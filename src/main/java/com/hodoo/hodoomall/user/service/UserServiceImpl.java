@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public void createUser(UserDTO userDTO) throws Exception{
 
-        User existingUser = userRepository.findByEmail(userDTO.getEmail());
+        UserDTO existingUser = findByEmail(userDTO.getEmail());
         if(existingUser != null){
             throw new Exception("계정이 이미 존재합니다.");
         }
@@ -46,6 +46,39 @@ public class UserServiceImpl implements UserService{
         userDTO.setLevel(userDetails.getUser().getLevel());
 
         return userDTO;
+    }
+
+    @Override
+    public UserDTO createUserWithGoogle(String email, String name, String randomPassword) {
+
+        String encodedPassword = bCryptPasswordEncoder.encode(randomPassword);
+        User newUser = new User();
+        newUser.setEmail(email);
+        newUser.setName(name);
+        newUser.setPassword(encodedPassword);
+        userRepository.save(newUser);
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setId(newUser.getId());
+        userDTO.setEmail(newUser.getEmail());
+        userDTO.setName(newUser.getName());
+        userDTO.setLevel(newUser.getLevel());
+
+        return userDTO;
+    }
+
+    @Override
+    public UserDTO findByEmail(String email) throws Exception {
+
+        User user = userRepository.findByEmail(email);
+        UserDTO existingUser = new UserDTO();
+        existingUser.setId(user.getId());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setName(user.getName());
+        existingUser.setLevel(user.getLevel());
+        existingUser.setPassword(user.getPassword());
+
+        return existingUser;
     }
 
 

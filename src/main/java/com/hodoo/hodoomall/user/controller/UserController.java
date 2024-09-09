@@ -1,7 +1,6 @@
 package com.hodoo.hodoomall.user.controller;
 
 import com.hodoo.hodoomall.auth.service.AuthService;
-import com.hodoo.hodoomall.user.model.dto.ResponseUserDTO;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import com.hodoo.hodoomall.user.service.UserService;
 import lombok.AllArgsConstructor;
@@ -36,11 +35,8 @@ public class UserController {
 
         try{
             UserDTO user = userService.getUser();
-            ResponseUserDTO userDTO = new ResponseUserDTO();
-            userDTO.setName(user.getName());
-            userDTO.setEmail(user.getEmail());
-            userDTO.setLevel(user.getLevel());
-            return ResponseEntity.ok().body(Map.of("status", "success", "user", userDTO));
+
+            return ResponseEntity.ok().body(Map.of("status", "success", "user", user));
         } catch(Exception e){
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));

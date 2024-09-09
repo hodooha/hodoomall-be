@@ -1,9 +1,8 @@
 package com.hodoo.hodoomall.auth.controller;
 
 import com.hodoo.hodoomall.auth.service.AuthService;
-import com.hodoo.hodoomall.user.model.dto.RequestUserDTO;
-import com.hodoo.hodoomall.user.model.dto.ResponseUserDTO;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
+import com.hodoo.hodoomall.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,17 +18,16 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
+
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginWithEmail(@RequestBody RequestUserDTO userDTO) {
+    public ResponseEntity<?> loginWithEmail(@RequestBody UserDTO userDTO) {
 
         try {
             UserDTO loginUser = authService.loginWithEmail(userDTO);
-            ResponseUserDTO responseUser = new ResponseUserDTO();
-            responseUser.setEmail(loginUser.getEmail());
-            responseUser.setName(loginUser.getName());
-            responseUser.setLevel(loginUser.getLevel());
-            return ResponseEntity.ok().body(Map.of("status", "success", "token", loginUser.getToken(), "user", responseUser));
+
+            return ResponseEntity.ok().body(Map.of("status", "success", "user", loginUser));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
@@ -38,10 +36,21 @@ public class AuthController {
 
     }
 
+    @PostMapping("/google")
+    public ResponseEntity<?> loginWithGoogle(@RequestBody Map<String, String> map){
 
 
+        String token = map.get("token");
+        System.out.println(token);
+        try {
+            UserDTO loginUser = authService.loginWithGoogle(token);
+
+            return ResponseEntity.ok().body(Map.of("status", "success", "user", loginUser));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
+        }
 
 
-//    @PostMapping("/google")
-
+    }
 }
