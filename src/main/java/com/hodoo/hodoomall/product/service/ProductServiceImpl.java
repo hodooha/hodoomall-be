@@ -6,6 +6,9 @@ import com.hodoo.hodoomall.product.model.dto.ProductDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class ProductServiceImpl implements ProductService{
@@ -26,5 +29,28 @@ public class ProductServiceImpl implements ProductService{
         newProduct.setPrice(productDTO.getPrice());
 
         productRepositoty.save(newProduct);
+    }
+
+    @Override
+    public List<ProductDTO> getProductList() throws Exception {
+
+        List<Product> data = productRepositoty.findAll();
+        System.out.println(data);
+
+        List<ProductDTO> productList = new ArrayList<>();
+        for(Product p : data){
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setCategory(p.getCategory());
+            productDTO.setSku(p.getSku());
+            productDTO.setName(p.getName());
+            productDTO.setPrice(p.getPrice());
+            productDTO.setImage(p.getImage());
+            productDTO.setDescription(p.getDescription());
+            productDTO.setStatus(p.getStatus());
+            productDTO.setStock(p.getStock());
+            productList.add(productDTO);
+        }
+
+        return productList;
     }
 }

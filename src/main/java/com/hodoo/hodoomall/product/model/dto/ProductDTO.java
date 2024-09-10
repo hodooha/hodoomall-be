@@ -17,6 +17,6 @@ public class ProductDTO {
     private int price;
     private Map<String, Integer> stock;
     private String status = "active";
-    private boolean isDeleted = false;
+//    private boolean isDeleted = false;
 
 }
