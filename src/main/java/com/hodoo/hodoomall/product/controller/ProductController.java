@@ -1,6 +1,7 @@
 package com.hodoo.hodoomall.product.controller;
 
 import com.hodoo.hodoomall.product.model.dto.ProductDTO;
+import com.hodoo.hodoomall.product.model.dto.QueryDTO;
 import com.hodoo.hodoomall.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +31,15 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getProductList(){
-//        System.out.println(query);
-        try{
-            List<ProductDTO> productList = productService.getProductList();
-            System.out.println(productList);
+    public ResponseEntity<?> getProductList(@ModelAttribute QueryDTO queryDTO){
+        System.out.println(queryDTO);
 
-            return ResponseEntity.ok().body(Map.of("status", "success", "productList", productList));
+        try{
+            List<ProductDTO> productList = productService.getProductList(queryDTO);
+            long totalProducts = productService.getTotalProductCount(queryDTO);
+            int totalPageNum = (int) Math.ceil((double) totalProducts/queryDTO.getPageSize());
+
+            return ResponseEntity.ok().body(Map.of("status", "success", "productList", productList, "totalPageNum", totalPageNum));
         } catch(Exception e){
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));

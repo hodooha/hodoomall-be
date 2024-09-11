@@ -1,8 +1,9 @@
 package com.hodoo.hodoomall.product.service;
 
-import com.hodoo.hodoomall.product.model.dao.ProductRepositoty;
+import com.hodoo.hodoomall.product.model.dao.ProductRepository;
 import com.hodoo.hodoomall.product.model.dto.Product;
 import com.hodoo.hodoomall.product.model.dto.ProductDTO;
+import com.hodoo.hodoomall.product.model.dto.QueryDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService{
 
-    private final ProductRepositoty productRepositoty;
+    private final ProductRepository productRepository;
 
     @Override
     public void createProduct(ProductDTO productDTO) throws Exception {
@@ -28,13 +29,13 @@ public class ProductServiceImpl implements ProductService{
         newProduct.setStatus(productDTO.getStatus());
         newProduct.setPrice(productDTO.getPrice());
 
-        productRepositoty.save(newProduct);
+        productRepository.save(newProduct);
     }
 
     @Override
-    public List<ProductDTO> getProductList() throws Exception {
+    public List<ProductDTO> getProductList(QueryDTO queryDTO) throws Exception {
 
-        List<Product> data = productRepositoty.findAll();
+        List<Product> data = productRepository.findByQuery(queryDTO);
         System.out.println(data);
 
         List<ProductDTO> productList = new ArrayList<>();
@@ -52,5 +53,11 @@ public class ProductServiceImpl implements ProductService{
         }
 
         return productList;
+    }
+
+    @Override
+    public long getTotalProductCount(QueryDTO queryDTO) throws Exception {
+
+        return productRepository.getTotalProductCount(queryDTO);
     }
 }
