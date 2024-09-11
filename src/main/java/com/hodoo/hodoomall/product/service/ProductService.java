@@ -11,4 +11,6 @@ public interface ProductService {
     List<ProductDTO> getProductList(QueryDTO query) throws Exception;
 
     long getTotalProductCount(QueryDTO queryDTO) throws Exception;
+
+    ProductDTO updateProduct(ProductDTO productDTO) throws Exception;
 }

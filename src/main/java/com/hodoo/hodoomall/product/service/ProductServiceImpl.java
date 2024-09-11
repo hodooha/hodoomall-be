@@ -41,6 +41,7 @@ public class ProductServiceImpl implements ProductService{
         List<ProductDTO> productList = new ArrayList<>();
         for(Product p : data){
             ProductDTO productDTO = new ProductDTO();
+            productDTO.setId(p.getId());
             productDTO.setCategory(p.getCategory());
             productDTO.setSku(p.getSku());
             productDTO.setName(p.getName());
@@ -59,5 +60,10 @@ public class ProductServiceImpl implements ProductService{
     public long getTotalProductCount(QueryDTO queryDTO) throws Exception {
 
         return productRepository.getTotalProductCount(queryDTO);
+    }
+
+    @Override
+    public ProductDTO updateProduct(ProductDTO productDTO) throws Exception {
+        return productRepository.;
     }
 }

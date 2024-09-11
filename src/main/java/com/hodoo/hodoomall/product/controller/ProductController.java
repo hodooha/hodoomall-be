@@ -46,4 +46,12 @@ public class ProductController {
         }
     }
 
+    @PutMapping()
+    public ResponseEntity<?> updateProduct(@RequestBody ProductDTO productDTO){
+
+        String id = productDTO.getId();
+        ProductDTO updatedProduct = productService.updateProduct(productDTO);
+        return null;
+    }
+
 }
