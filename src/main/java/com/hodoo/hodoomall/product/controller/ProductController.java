@@ -59,4 +59,16 @@ public class ProductController {
         }
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable("id") String id){
+
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.ok().body(Map.of("status", "success"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
+        }
+    }
+
 }

@@ -13,4 +13,6 @@ public interface ProductService {
     long getTotalProductCount(QueryDTO queryDTO) throws Exception;
 
     void updateProduct(ProductDTO productDTO) throws Exception;
+
+    void deleteProduct(String id) throws Exception;
 }

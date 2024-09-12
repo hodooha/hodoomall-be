@@ -86,4 +86,19 @@ public class ProductServiceImpl implements ProductService{
             throw new Exception("상품이 존재하지 않습니다.");
         }
     }
+
+    @Override
+    public void deleteProduct(String id) throws Exception {
+
+        Optional<Product> existingProduct = productRepository.findById(id);
+        if(existingProduct.isPresent()) {
+            Product targetProduct = existingProduct.get();
+
+            targetProduct.setDeleted(true);
+            productRepository.save(targetProduct);
+
+        } else{
+            throw new Exception("상품이 존재하지 않습니다.");
+        }
+    }
 }
