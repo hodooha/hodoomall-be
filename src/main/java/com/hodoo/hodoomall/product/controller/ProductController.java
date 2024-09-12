@@ -50,8 +50,13 @@ public class ProductController {
     public ResponseEntity<?> updateProduct(@RequestBody ProductDTO productDTO){
 
         String id = productDTO.getId();
-        ProductDTO updatedProduct = productService.updateProduct(productDTO);
-        return null;
+        try {
+            productService.updateProduct(productDTO);
+            return ResponseEntity.ok().body(Map.of("status", "success"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
+        }
     }
 
 }

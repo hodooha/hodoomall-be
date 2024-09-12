@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -63,7 +64,26 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public ProductDTO updateProduct(ProductDTO productDTO) throws Exception {
-        return productRepository.;
+    public void updateProduct(ProductDTO productDTO) throws Exception {
+
+        Optional<Product> existingProduct = productRepository.findById(productDTO.getId());
+
+        if(existingProduct.isPresent()){
+            Product targetProduct = existingProduct.get();
+
+            targetProduct.setId(productDTO.getId());
+            targetProduct.setCategory(productDTO.getCategory());
+            targetProduct.setSku(productDTO.getSku());
+            targetProduct.setName(productDTO.getName());
+            targetProduct.setPrice(productDTO.getPrice());
+            targetProduct.setImage(productDTO.getImage());
+            targetProduct.setDescription(productDTO.getDescription());
+            targetProduct.setStatus(productDTO.getStatus());
+            targetProduct.setStock(productDTO.getStock());
+
+            productRepository.save(targetProduct);
+        } else{
+            throw new Exception("상품이 존재하지 않습니다.");
+        }
     }
 }

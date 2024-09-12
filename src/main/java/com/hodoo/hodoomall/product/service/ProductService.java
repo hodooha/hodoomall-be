@@ -12,5 +12,5 @@ public interface ProductService {
 
     long getTotalProductCount(QueryDTO queryDTO) throws Exception;
 
-    ProductDTO updateProduct(ProductDTO productDTO) throws Exception;
+    void updateProduct(ProductDTO productDTO) throws Exception;
 }
