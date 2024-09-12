@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class ProductServiceImpl implements ProductService{
+public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
 
@@ -40,7 +40,7 @@ public class ProductServiceImpl implements ProductService{
         System.out.println(data);
 
         List<ProductDTO> productList = new ArrayList<>();
-        for(Product p : data){
+        for (Product p : data) {
             ProductDTO productDTO = new ProductDTO();
             productDTO.setId(p.getId());
             productDTO.setCategory(p.getCategory());
@@ -68,7 +68,7 @@ public class ProductServiceImpl implements ProductService{
 
         Optional<Product> existingProduct = productRepository.findById(productDTO.getId());
 
-        if(existingProduct.isPresent()){
+        if (existingProduct.isPresent()) {
             Product targetProduct = existingProduct.get();
 
             targetProduct.setId(productDTO.getId());
@@ -82,7 +82,7 @@ public class ProductServiceImpl implements ProductService{
             targetProduct.setStock(productDTO.getStock());
 
             productRepository.save(targetProduct);
-        } else{
+        } else {
             throw new Exception("상품이 존재하지 않습니다.");
         }
     }
@@ -91,14 +91,41 @@ public class ProductServiceImpl implements ProductService{
     public void deleteProduct(String id) throws Exception {
 
         Optional<Product> existingProduct = productRepository.findById(id);
-        if(existingProduct.isPresent()) {
+        if (existingProduct.isPresent()) {
             Product targetProduct = existingProduct.get();
 
             targetProduct.setDeleted(true);
             productRepository.save(targetProduct);
 
-        } else{
+        } else {
             throw new Exception("상품이 존재하지 않습니다.");
         }
+    }
+
+    @Override
+    public ProductDTO getProductDetail(String id) throws Exception {
+
+        Optional<Product> existingProduct = productRepository.findById(id);
+
+        if (existingProduct.isPresent()) {
+            Product product = existingProduct.get();
+
+            ProductDTO productDTO = new ProductDTO();
+            productDTO.setId(product.getId());
+            productDTO.setCategory(product.getCategory());
+            productDTO.setSku(product.getSku());
+            productDTO.setName(product.getName());
+            productDTO.setPrice(product.getPrice());
+            productDTO.setImage(product.getImage());
+            productDTO.setDescription(product.getDescription());
+            productDTO.setStatus(product.getStatus());
+            productDTO.setStock(product.getStock());
+
+            return productDTO;
+        } else {
+            throw new Exception("상품이 존재하지 않습니다.");
+        }
+
+
     }
 }

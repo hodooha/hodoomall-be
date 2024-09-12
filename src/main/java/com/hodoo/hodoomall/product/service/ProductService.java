@@ -15,4 +15,6 @@ public interface ProductService {
     void updateProduct(ProductDTO productDTO) throws Exception;
 
     void deleteProduct(String id) throws Exception;
+
+    ProductDTO getProductDetail(String id) throws Exception;
 }

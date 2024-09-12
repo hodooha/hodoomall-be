@@ -25,7 +25,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom{
         }
 
         if(queryDTO.getCategory() != null && !queryDTO.getCategory().isEmpty()){
-            query.addCriteria(Criteria.where("category").in(queryDTO.getCategory()));
+            query.addCriteria(Criteria.where("category").regex(queryDTO.getCategory(), "i"));
         }
 
         if(!queryDTO.isDeleted()){
@@ -48,7 +48,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom{
         }
 
         if(queryDTO.getCategory() != null && !queryDTO.getCategory().isEmpty()){
-            query.addCriteria(Criteria.where("category").in(queryDTO.getCategory()));
+            query.addCriteria(Criteria.where("category").regex(queryDTO.getCategory(), "i"));
         }
 
         if(!queryDTO.isDeleted()){

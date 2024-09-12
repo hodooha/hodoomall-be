@@ -71,4 +71,17 @@ public class ProductController {
         }
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<?> getProductDetail(@PathVariable("id") String id){
+
+        try {
+            ProductDTO product = productService.getProductDetail(id);
+            return ResponseEntity.ok().body(Map.of("status", "success", "product", product));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
+        }
+
+    }
+
 }
