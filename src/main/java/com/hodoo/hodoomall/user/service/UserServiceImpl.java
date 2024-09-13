@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserDTO getUser() throws Exception {
+    public UserDTO getUser()  throws Exception{
 
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserDTO createUserWithGoogle(String email, String name, String randomPassword) {
+    public UserDTO createUserWithGoogle(String email, String name, String randomPassword)  throws Exception{
 
         String encodedPassword = bCryptPasswordEncoder.encode(randomPassword);
         User newUser = new User();
@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserDTO findByEmail(String email) throws Exception {
+    public UserDTO findByEmail(String email)  throws Exception{
 
         User user = userRepository.findByEmail(email);
         UserDTO existingUser = new UserDTO();
