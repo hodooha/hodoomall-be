@@ -41,7 +41,7 @@ public class CartServiceImpl implements CartService {
 
         if (cart.getItems() != null && !cart.getItems().isEmpty()) {
 
-            for(Cart.CartItem item : cart.getItems()){
+            for (Cart.CartItem item : cart.getItems()) {
                 CartDTO.CartItemDTO cartItemDTO = new CartDTO.CartItemDTO();
 
                 Product product = productRepository.findById(String.valueOf(item.getProductId())).orElseThrow(() -> new Exception("해당 상품이 존재하지 않습니다."));
@@ -78,11 +78,67 @@ public class CartServiceImpl implements CartService {
         Optional<Cart> existingCart = cartRepository.findByUserId(userId);
         int cartQty = 0;
 
-        if(existingCart.isPresent()){
+        if (existingCart.isPresent()) {
             cart = existingCart.get();
             cartQty = cart.getItems().size();
         }
 
         return cartQty;
+    }
+
+    @Override
+    public void addItemToCart(User user, Cart.CartItem cartItem) throws Exception {
+
+        Cart cart;
+
+        Optional<Product> product = productRepository.findById(cartItem.getProductId().toString());
+        if (product.isEmpty()) throw new Exception("상품이 존재하지 않습니다.");
+
+        ObjectId userId = new ObjectId(user.getId());
+        Optional<Cart> existingCart = cartRepository.findByUserId(userId);
+
+        if (existingCart.isPresent()) {
+            cart = existingCart.get();
+        } else {
+            cart = new Cart();
+            cart.setUserId(userId);
+            cart.setItems(new ArrayList<>());
+            cart = cartRepository.save(cart);
+        }
+
+
+        for (Cart.CartItem i : cart.getItems()) {
+            if (i.getProductId().equals(cartItem.getProductId()) && i.getSize().equals(cartItem.getSize())) {
+                throw new Exception("이미 추가된 아이템입니다.");
+            }
+        }
+
+        cart.getItems().add(cartItem);
+        cartRepository.save(cart);
+
+    }
+
+    @Override
+    public void updateQty(User user, Cart.CartItem cartItem) throws Exception {
+
+        Cart cart;
+
+        Optional<Product> product = productRepository.findById(cartItem.getProductId().toString());
+        if (product.isEmpty()) throw new Exception("상품이 존재하지 않습니다.");
+
+        ObjectId userId = new ObjectId(user.getId());
+        Optional<Cart> existingCart = cartRepository.findByUserId(userId);
+
+        if (existingCart.isEmpty()) throw new Exception("카트가 존재하지 않습니다.");
+
+        cart = existingCart.get();
+
+        for (Cart.CartItem i : cart.getItems()) {
+            if (i.getProductId().equals(cartItem.getProductId()) && i.getSize().equals(cartItem.getSize())) {
+                i.setQty(cartItem.getQty());
+            }
+        }
+
+        cartRepository.save(cart);
     }
 }

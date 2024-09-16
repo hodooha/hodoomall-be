@@ -1,15 +1,15 @@
 package com.hodoo.hodoomall.cart.controller;
 
+import com.hodoo.hodoomall.cart.model.dto.Cart;
 import com.hodoo.hodoomall.cart.model.dto.CartDTO;
 import com.hodoo.hodoomall.cart.service.CartService;
 import com.hodoo.hodoomall.user.model.dto.CustomUserDetails;
 import com.hodoo.hodoomall.user.model.dto.User;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -53,6 +53,45 @@ public class CartController {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
         }
+
+    }
+
+    @PostMapping()
+    public ResponseEntity<?> addItemToCart(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody Map<String, String> item){
+
+        System.out.println(item);
+
+        try {
+            User user = customUserDetails.getUser();
+            Cart.CartItem cartItem = new Cart.CartItem();
+            cartItem.setProductId(new ObjectId(item.get("id")));
+            cartItem.setSize(item.get("size"));
+
+            cartService.addItemToCart(user, cartItem);
+
+            return ResponseEntity.ok().body(Map.of("status", "success"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
+        }
+
+    }
+
+    @PutMapping()
+    public ResponseEntity<?> updateQty(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody Map<String, String> item){
+
+        User user = customUserDetails.getUser();
+        Cart.CartItem cartItem = new Cart.CartItem();
+        cartItem.setProductId(new ObjectId(item.get("id")));
+        cartItem.setSize(item.get("size"));
+        cartItem.setQty(Integer.parseInt(item.get("qty")));
+        try {
+            cartService.updateQty(user, cartItem);
+
+            return ResponseEntity.ok().body(Map.of("status", "success"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
+        }
+
 
     }
 
