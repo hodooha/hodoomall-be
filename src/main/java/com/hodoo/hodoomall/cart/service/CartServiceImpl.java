@@ -42,24 +42,12 @@ public class CartServiceImpl implements CartService {
         if (cart.getItems() != null && !cart.getItems().isEmpty()) {
 
             for (Cart.CartItem item : cart.getItems()) {
-                CartDTO.CartItemDTO cartItemDTO = new CartDTO.CartItemDTO();
 
                 Product product = productRepository.findById(String.valueOf(item.getProductId())).orElseThrow(() -> new Exception("해당 상품이 존재하지 않습니다."));
 
-                ProductDTO productDTO = new ProductDTO();
-                productDTO.setId(product.getId());
-                productDTO.setCategory(product.getCategory());
-                productDTO.setSku(product.getSku());
-                productDTO.setName(product.getName());
-                productDTO.setPrice(product.getPrice());
-                productDTO.setImage(product.getImage());
-                productDTO.setDescription(product.getDescription());
-                productDTO.setStatus(product.getStatus());
-                productDTO.setStock(product.getStock());
+                ProductDTO productDTO = new ProductDTO(product);
 
-                cartItemDTO.setProductId(productDTO);
-                cartItemDTO.setSize(item.getSize());
-                cartItemDTO.setQty(item.getQty());
+                CartDTO.CartItemDTO cartItemDTO = new CartDTO.CartItemDTO(productDTO, item.getSize(), item.getQty());
 
                 cartItemDTOs.add(cartItemDTO);
             }

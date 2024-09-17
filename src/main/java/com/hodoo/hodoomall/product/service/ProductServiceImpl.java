@@ -20,17 +20,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void createProduct(ProductDTO productDTO) throws Exception {
 
-        Product newProduct = new Product();
-        newProduct.setName(productDTO.getName());
-        newProduct.setSku(productDTO.getSku());
-        newProduct.setStock(productDTO.getStock());
-        newProduct.setCategory(productDTO.getCategory());
-        newProduct.setImage(productDTO.getImage());
-        newProduct.setDescription(productDTO.getDescription());
-        newProduct.setStatus(productDTO.getStatus());
-        newProduct.setPrice(productDTO.getPrice());
-
-        productRepository.save(newProduct);
+        productRepository.save(productDTO.toEntity());
     }
 
     @Override
@@ -41,17 +31,8 @@ public class ProductServiceImpl implements ProductService {
 
         List<ProductDTO> productList = new ArrayList<>();
         for (Product p : data) {
-            ProductDTO productDTO = new ProductDTO();
-            productDTO.setId(p.getId());
-            productDTO.setCategory(p.getCategory());
-            productDTO.setSku(p.getSku());
-            productDTO.setName(p.getName());
-            productDTO.setPrice(p.getPrice());
-            productDTO.setImage(p.getImage());
-            productDTO.setDescription(p.getDescription());
-            productDTO.setStatus(p.getStatus());
-            productDTO.setStock(p.getStock());
-            productList.add(productDTO);
+
+            productList.add(new ProductDTO(p));
         }
 
         return productList;
@@ -69,18 +50,8 @@ public class ProductServiceImpl implements ProductService {
         Optional<Product> existingProduct = productRepository.findById(productDTO.getId());
 
         if (existingProduct.isPresent()) {
-            Product targetProduct = existingProduct.get();
-
+            Product targetProduct = productDTO.toEntity();
             targetProduct.setId(productDTO.getId());
-            targetProduct.setCategory(productDTO.getCategory());
-            targetProduct.setSku(productDTO.getSku());
-            targetProduct.setName(productDTO.getName());
-            targetProduct.setPrice(productDTO.getPrice());
-            targetProduct.setImage(productDTO.getImage());
-            targetProduct.setDescription(productDTO.getDescription());
-            targetProduct.setStatus(productDTO.getStatus());
-            targetProduct.setStock(productDTO.getStock());
-
             productRepository.save(targetProduct);
         } else {
             throw new Exception("상품이 존재하지 않습니다.");
@@ -110,18 +81,7 @@ public class ProductServiceImpl implements ProductService {
         if (existingProduct.isPresent()) {
             Product product = existingProduct.get();
 
-            ProductDTO productDTO = new ProductDTO();
-            productDTO.setId(product.getId());
-            productDTO.setCategory(product.getCategory());
-            productDTO.setSku(product.getSku());
-            productDTO.setName(product.getName());
-            productDTO.setPrice(product.getPrice());
-            productDTO.setImage(product.getImage());
-            productDTO.setDescription(product.getDescription());
-            productDTO.setStatus(product.getStatus());
-            productDTO.setStock(product.getStock());
-
-            return productDTO;
+            return new ProductDTO(product);
         } else {
             throw new Exception("상품이 존재하지 않습니다.");
         }
