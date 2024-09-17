@@ -141,4 +141,30 @@ public class CartServiceImpl implements CartService {
 
         cartRepository.save(cart);
     }
+
+    @Override
+    public void deleteCartItem(User user, String id) throws Exception {
+
+        Cart cart;
+
+        Optional<Product> product = productRepository.findById(id);
+        if (product.isEmpty()) throw new Exception("상품이 존재하지 않습니다.");
+
+        ObjectId userId = new ObjectId(user.getId());
+        Optional<Cart> existingCart = cartRepository.findByUserId(userId);
+
+        if (existingCart.isEmpty()) throw new Exception("카트가 존재하지 않습니다.");
+
+        cart = existingCart.get();
+
+        for (Cart.CartItem i : cart.getItems()) {
+            if (i.getProductId().equals(new ObjectId(id))) {
+                cart.getItems().remove(i);
+                break;
+            }
+        }
+
+        cartRepository.save(cart);
+
+    }
 }

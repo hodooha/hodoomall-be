@@ -24,8 +24,9 @@ public class CartController {
     @GetMapping()
     public ResponseEntity<?> getCarItems(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        User user = customUserDetails.getUser();
+
         try {
+            User user = customUserDetails.getUser();
             List<CartDTO.CartItemDTO> cartList = cartService.getCartItems(user);
             int cartItemCount = cartList.size();
             int totalPrice = cartList.stream().mapToInt(item ->
@@ -42,13 +43,12 @@ public class CartController {
     }
 
     @GetMapping("/qty")
-    public ResponseEntity<?> getCartQty(@AuthenticationPrincipal CustomUserDetails customUserDetails){
-
-        User user = customUserDetails.getUser();
+    public ResponseEntity<?> getCartQty(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         try {
+            User user = customUserDetails.getUser();
             int cartItemCount = cartService.getCartQty(user);
-            return ResponseEntity.ok().body(Map.of("status", "success", "cartItemCount",cartItemCount));
+            return ResponseEntity.ok().body(Map.of("status", "success", "cartItemCount", cartItemCount));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
@@ -57,7 +57,7 @@ public class CartController {
     }
 
     @PostMapping()
-    public ResponseEntity<?> addItemToCart(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody Map<String, String> item){
+    public ResponseEntity<?> addItemToCart(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody Map<String, String> item) {
 
         System.out.println(item);
 
@@ -77,17 +77,33 @@ public class CartController {
     }
 
     @PutMapping()
-    public ResponseEntity<?> updateQty(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody Map<String, String> item){
+    public ResponseEntity<?> updateQty(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody Map<String, String> item) {
 
-        User user = customUserDetails.getUser();
-        Cart.CartItem cartItem = new Cart.CartItem();
-        cartItem.setProductId(new ObjectId(item.get("id")));
-        cartItem.setSize(item.get("size"));
-        cartItem.setQty(Integer.parseInt(item.get("qty")));
+
         try {
+            User user = customUserDetails.getUser();
+            Cart.CartItem cartItem = new Cart.CartItem();
+            cartItem.setProductId(new ObjectId(item.get("id")));
+            cartItem.setSize(item.get("size"));
+            cartItem.setQty(Integer.parseInt(item.get("qty")));
             cartService.updateQty(user, cartItem);
 
             return ResponseEntity.ok().body(Map.of("status", "success"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
+        }
+
+
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteCartItem(@PathVariable("id") String id, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        System.out.println(id);
+        try {
+            User user = customUserDetails.getUser();
+            cartService.deleteCartItem(user, id);
+            return ResponseEntity.ok().body(Map.of("status", "success"));
+
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
         }
