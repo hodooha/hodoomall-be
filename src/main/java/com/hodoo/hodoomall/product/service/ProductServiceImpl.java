@@ -1,14 +1,17 @@
 package com.hodoo.hodoomall.product.service;
 
+import com.hodoo.hodoomall.order.model.dto.OrderDTO;
 import com.hodoo.hodoomall.product.model.dao.ProductRepository;
 import com.hodoo.hodoomall.product.model.dto.Product;
 import com.hodoo.hodoomall.product.model.dto.ProductDTO;
 import com.hodoo.hodoomall.product.model.dto.QueryDTO;
+import com.hodoo.hodoomall.product.model.dto.StockCheckResultDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -88,4 +91,35 @@ public class ProductServiceImpl implements ProductService {
 
 
     }
+
+    @Override
+    public StockCheckResultDTO checkStock(OrderDTO.OrderItemDTO orderItemDTO) throws Exception {
+
+        Product product = productRepository.findById(orderItemDTO.getProductId().toString()).orElseThrow(() -> new Exception("해당 상품이 존재하지 않습니다."));
+
+
+        if (product.getStock().get(orderItemDTO.getSize()) < orderItemDTO.getQty()) {
+            return new StockCheckResultDTO(false, product.getName() + "의 " + orderItemDTO.getSize() + "재고가 부족합니다.");
+        } else {
+
+            return new StockCheckResultDTO(true, null);
+        }
+
+    }
+
+    @Override
+    public void updateStock(OrderDTO.OrderItemDTO orderItemDTO) throws Exception {
+
+        Product product = productRepository.findById(orderItemDTO.getProductId().toString()).orElseThrow(() -> new Exception("해당 상품이 존재하지 않습니다."));
+
+        Map<String, Integer> stock = product.getStock();
+        stock.put(orderItemDTO.getSize(), stock.get(orderItemDTO.getSize()) - orderItemDTO.getQty());
+        if(stock.get(orderItemDTO.getSize()) < 0) throw new Exception("재고가 부족합니다.") ;
+        product.setStock(stock);
+        productRepository.save(product);
+
+
+    }
+
+
 }

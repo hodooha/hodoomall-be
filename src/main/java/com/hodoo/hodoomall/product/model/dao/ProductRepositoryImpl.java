@@ -57,4 +57,5 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom{
 
         return mongoTemplate.count(query, Product.class);
     }
+
 }

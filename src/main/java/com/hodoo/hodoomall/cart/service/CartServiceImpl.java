@@ -155,4 +155,13 @@ public class CartServiceImpl implements CartService {
         cartRepository.save(cart);
 
     }
+
+    @Override
+    public void emptyCartItem(User user) throws Exception {
+
+        Cart cart = cartRepository.findByUserId(new ObjectId(user.getId())).orElseThrow(() -> new Exception("카트가 존재하지 않습니다."));
+
+        cart.setItems(new ArrayList<>());
+        cartRepository.save(cart);
+    }
 }

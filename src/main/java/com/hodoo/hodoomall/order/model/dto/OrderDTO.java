@@ -2,12 +2,14 @@ package com.hodoo.hodoomall.order.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.hodoo.hodoomall.product.model.dto.ProductDTO;
+import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +20,7 @@ public class OrderDTO {
     private String id;
 
     private String userId;
+    private UserDTO user;
 
     private String status;
     private int totalPrice;
@@ -28,6 +31,9 @@ public class OrderDTO {
 
     private List<OrderItemDTO> items;
 
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
     public OrderDTO(Order order){
         this.id = order.getId();
         this.userId = order.getUserId().toString();
@@ -36,6 +42,8 @@ public class OrderDTO {
         this.shipTo = new ShipToDTO(order.getShipTo());
         this.contact = new ContactDTO(order.getContact());
         this.orderNum = order.getOrderNum();
+        this.createdAt = order.getCreatedAt();
+        this.updatedAt = order.getUpdatedAt();
 
         List<OrderItemDTO> items = new ArrayList<>();
         for(Order.OrderItem i : order.getItems()){
@@ -43,6 +51,7 @@ public class OrderDTO {
         }
 
         this.items = items;
+
     }
 
     public List<Order.OrderItem> itemsToEntity(){

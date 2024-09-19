@@ -1,26 +1,24 @@
 package com.hodoo.hodoomall.user.service;
 
 import com.hodoo.hodoomall.user.model.dao.UserRepository;
-import com.hodoo.hodoomall.user.model.dto.CustomUserDetails;
 import com.hodoo.hodoomall.user.model.dto.User;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public void createUser(UserDTO userDTO) throws Exception{
+    public void createUser(UserDTO userDTO) throws Exception {
 
         UserDTO existingUser = findByEmail(userDTO.getEmail());
-        if(existingUser != null){
+        if (existingUser != null) {
             throw new Exception("계정이 이미 존재합니다.");
         }
 
@@ -36,20 +34,13 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserDTO getUser()  throws Exception{
+    public UserDTO getUser(User user) throws Exception {
 
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        UserDTO userDTO = new UserDTO();
-        userDTO.setEmail(userDetails.getUser().getEmail());
-        userDTO.setName(userDetails.getUser().getName());
-        userDTO.setLevel(userDetails.getUser().getLevel());
-
-        return userDTO;
+        return new UserDTO(user);
     }
 
     @Override
-    public UserDTO createUserWithGoogle(String email, String name, String randomPassword)  throws Exception{
+    public UserDTO createUserWithGoogle(String email, String name, String randomPassword) throws Exception {
 
         String encodedPassword = bCryptPasswordEncoder.encode(randomPassword);
         User newUser = new User();
@@ -58,27 +49,28 @@ public class UserServiceImpl implements UserService{
         newUser.setPassword(encodedPassword);
         userRepository.save(newUser);
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setId(newUser.getId());
-        userDTO.setEmail(newUser.getEmail());
-        userDTO.setName(newUser.getName());
-        userDTO.setLevel(newUser.getLevel());
+        return new UserDTO(newUser);
+    }
+
+    @Override
+    public UserDTO findByEmail(String email) throws Exception {
+
+        User user = userRepository.findByEmail(email);
+
+        if (user == null) throw new Exception("유저가 존재하지 않습니다.");
+
+        UserDTO userDTO = new UserDTO(user);
+        userDTO.setPassword(user.getPassword());
 
         return userDTO;
     }
 
     @Override
-    public UserDTO findByEmail(String email)  throws Exception{
+    public UserDTO findById(String id) throws Exception {
 
-        User user = userRepository.findByEmail(email);
-        UserDTO existingUser = new UserDTO();
-        existingUser.setId(user.getId());
-        existingUser.setEmail(user.getEmail());
-        existingUser.setName(user.getName());
-        existingUser.setLevel(user.getLevel());
-        existingUser.setPassword(user.getPassword());
+        User user = userRepository.findById(id).orElseThrow(() -> new Exception("유저가 존재하지 않습니다."));
 
-        return existingUser;
+        return new UserDTO(user);
     }
 
 

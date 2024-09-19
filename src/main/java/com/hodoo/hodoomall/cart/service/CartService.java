@@ -16,4 +16,6 @@ public interface CartService {
     void updateQty(User user, Cart.CartItem cartItem) throws Exception;
 
     void deleteCartItem(User user, String id) throws Exception;
+
+    void emptyCartItem(User user) throws Exception;
 }

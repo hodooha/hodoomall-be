@@ -1,10 +1,12 @@
 package com.hodoo.hodoomall.user.controller;
 
 import com.hodoo.hodoomall.auth.service.AuthService;
+import com.hodoo.hodoomall.user.model.dto.CustomUserDetails;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import com.hodoo.hodoomall.user.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -31,10 +33,10 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> getUser(){
+    public ResponseEntity<?> getUser(@AuthenticationPrincipal CustomUserDetails customUserDetails){
 
         try{
-            UserDTO user = userService.getUser();
+            UserDTO user = userService.getUser(customUserDetails.getUser());
 
             return ResponseEntity.ok().body(Map.of("status", "success", "user", user));
         } catch(Exception e){
