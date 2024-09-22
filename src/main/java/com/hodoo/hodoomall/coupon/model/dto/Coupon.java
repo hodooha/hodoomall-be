@@ -5,8 +5,6 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
-
 @Document(collection = "coupons")
 @Data
 public class Coupon {
@@ -25,7 +23,10 @@ public class Coupon {
     @NotBlank
     private int minCost;
     @NotBlank
-    private LocalDateTime expiryDate;
+    private int duration;
+
+    @NotBlank
+    private boolean isDeleted = false;
 
 
 }
