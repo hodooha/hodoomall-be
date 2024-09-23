@@ -1,4 +1,4 @@
-package com.hodoo.hodoomall.coupon.model.dto;
+package com.hodoo.hodoomall.userCoupon.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

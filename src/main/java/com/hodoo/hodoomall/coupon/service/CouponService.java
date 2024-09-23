@@ -13,4 +13,6 @@ public interface CouponService {
     long getTotalCouponCount(QueryDTO queryDTO) throws Exception;
 
     void deleteCoupon(String id) throws Exception;
+
+    CouponDTO getCouponDetail(String id) throws Exception;
 }

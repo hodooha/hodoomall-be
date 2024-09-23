@@ -63,6 +63,17 @@ public class CouponController {
 
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<?> getCouponDetail(@PathVariable("id") String id){
+
+        try {
+            CouponDTO couponDTO = couponService.getCouponDetail(id);
+            return ResponseEntity.ok().body(Map.of("status", "success", "selectedCoupon", couponDTO));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("status", "success", "error", e.getMessage()));
+        }
+    }
+
 
 
 

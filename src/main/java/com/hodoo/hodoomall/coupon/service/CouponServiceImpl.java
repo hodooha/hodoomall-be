@@ -55,4 +55,14 @@ public class CouponServiceImpl implements CouponService{
         couponRepository.save(coupon);
 
     }
+
+    @Override
+    public CouponDTO getCouponDetail(String id) throws Exception {
+
+        Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new Exception("쿠폰이 존재하지 않습니다."));
+
+        return new CouponDTO(coupon);
+    }
+
+
 }
