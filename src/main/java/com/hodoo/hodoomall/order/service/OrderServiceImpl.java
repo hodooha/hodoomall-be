@@ -10,6 +10,7 @@ import com.hodoo.hodoomall.product.model.dto.StockCheckResultDTO;
 import com.hodoo.hodoomall.product.service.ProductService;
 import com.hodoo.hodoomall.user.model.dto.User;
 import com.hodoo.hodoomall.user.service.UserService;
+import com.hodoo.hodoomall.userCoupon.service.UserCouponService;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductService productService;
     private final CartService cartService;
     private final UserService userService;
+    private final UserCouponService userCouponService;
 
 
     @Override
@@ -51,6 +53,9 @@ public class OrderServiceImpl implements OrderService {
             productService.updateStock(i);
         }
 
+        if(data.getUserCouponId() != null) {
+            userCouponService.useUserCoupon(data.getUserCouponId());
+        }
 
         order.setContact(data.getContact().toEntity());
         order.setShipTo(data.getShipTo().toEntity());

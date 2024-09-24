@@ -19,6 +19,8 @@ public class OrderDTO {
 
     private String id;
 
+    private String userCouponId;
+
     private String userId;
     private UserDTO user;
 

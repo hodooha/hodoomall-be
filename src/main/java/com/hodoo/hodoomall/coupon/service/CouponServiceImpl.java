@@ -5,6 +5,7 @@ import com.hodoo.hodoomall.coupon.model.dto.Coupon;
 import com.hodoo.hodoomall.coupon.model.dto.CouponDTO;
 import com.hodoo.hodoomall.coupon.model.dto.QueryDTO;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -62,6 +63,25 @@ public class CouponServiceImpl implements CouponService{
         Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new Exception("쿠폰이 존재하지 않습니다."));
 
         return new CouponDTO(coupon);
+    }
+
+    @Override
+    public void minusCouponQty(ObjectId couponId) throws Exception {
+
+        Coupon coupon = couponRepository.findById(couponId.toString()).orElseThrow(() -> new Exception("쿠폰이 존재하지 않습니다."));
+
+        coupon.setTotalQty(coupon.getTotalQty()-1);
+        couponRepository.save(coupon);
+
+    }
+
+    @Override
+    public boolean checkCouponQty(ObjectId couponId) throws Exception {
+
+        Coupon coupon = couponRepository.findById(couponId.toString()).orElseThrow(() -> new Exception("쿠폰이 존재하지 않습니다."));
+
+        return coupon.getTotalQty() > 0;
+
     }
 
 

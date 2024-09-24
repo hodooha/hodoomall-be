@@ -29,7 +29,6 @@ public class UserCouponController {
             User user = customUserDetails.getUser();
             userCouponDTO.setUserId(new ObjectId(user.getId()));
             userCouponService.createUserCoupon(userCouponDTO);
-
             return ResponseEntity.ok().body(Map.of("status", "success"));
         } catch (Exception e) {
             e.printStackTrace();

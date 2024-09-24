@@ -31,7 +31,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
             query.addCriteria(Criteria.where("status").regex(queryDTO.getStatus(), "i"));
         }
 
-        if(queryDTO.getUser() != null && !queryDTO.getUser().getLevel().equals("admin")){
+        if(queryDTO.getUser() != null){
             query.addCriteria(Criteria.where("userId").is(new ObjectId(queryDTO.getUser().getId())));
         }
 
@@ -54,7 +54,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
             query.addCriteria(Criteria.where("status").regex(queryDTO.getStatus(), "i"));
         }
 
-        if(queryDTO.getUser() != null && !queryDTO.getUser().getLevel().equals("admin")){
+        if(queryDTO.getUser() != null){
             query.addCriteria(Criteria.where("userId").is(new ObjectId(queryDTO.getUser().getId())));
         }
 

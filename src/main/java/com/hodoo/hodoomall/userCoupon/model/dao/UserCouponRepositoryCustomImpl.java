@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -27,6 +28,20 @@ public class UserCouponRepositoryCustomImpl implements UserCouponRepositoryCusto
         if(queryDTO.getUserId() != null){
             query.addCriteria(Criteria.where("userId").is(queryDTO.getUserId()));
         }
+
+        if(queryDTO.isExpired()){
+            query.addCriteria(Criteria.where("expiredAt").lte(LocalDate.now()));
+        }else{
+            query.addCriteria(Criteria.where("expiredAt").gt(LocalDate.now()));
+        }
+
+        if(queryDTO.isUsed()){
+            query.addCriteria(Criteria.where("isUsed").is(true));
+        } else{
+            query.addCriteria(Criteria.where("isUsed").is(false));
+        }
+
+
 
         int page = queryDTO.getPage();
         int pageSize = queryDTO.getPageSize();
