@@ -11,17 +11,31 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/admin/products")
 @RequiredArgsConstructor
-public class ProductController {
+public class AdminProductController {
 
     private final ProductService productService;
 
+    @PostMapping
+    public ResponseEntity<?> createProduct(@RequestBody ProductDTO productDTO){
+
+        try {
+            productService.createProduct(productDTO);
+
+            return ResponseEntity.ok().body(Map.of("status", "success"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
+        }
+    }
+
     @GetMapping
-    public ResponseEntity<?> getProductList(@ModelAttribute QueryDTO queryDTO){
+    public ResponseEntity<?> getAllProductList(@ModelAttribute QueryDTO queryDTO){
         System.out.println(queryDTO);
 
         try{
+            queryDTO.setStatus(null);
             List<ProductDTO> productList = productService.getProductList(queryDTO);
             long totalProducts = productService.getTotalProductCount(queryDTO);
             int totalPageNum = (int) Math.ceil((double) totalProducts/queryDTO.getPageSize());
@@ -33,19 +47,28 @@ public class ProductController {
         }
     }
 
-    @GetMapping("{id}")
-    public ResponseEntity<?> getProductDetail(@PathVariable("id") String id){
+    @PutMapping()
+    public ResponseEntity<?> updateProduct(@RequestBody ProductDTO productDTO){
 
+        String id = productDTO.getId();
         try {
-            ProductDTO product = productService.getProductDetail(id);
-            return ResponseEntity.ok().body(Map.of("status", "success", "product", product));
+            productService.updateProduct(productDTO);
+            return ResponseEntity.ok().body(Map.of("status", "success"));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
         }
-
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> deleteProduct(@PathVariable("id") String id){
 
-
+        try {
+            productService.deleteProduct(id);
+            return ResponseEntity.ok().body(Map.of("status", "success"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
+        }
+    }
 }

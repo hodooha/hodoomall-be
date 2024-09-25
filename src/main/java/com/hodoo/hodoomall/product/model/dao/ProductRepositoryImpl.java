@@ -32,6 +32,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom{
             query.addCriteria(Criteria.where("isDeleted").is(false));
         }
 
+        if(queryDTO.getStatus() != null && !queryDTO.getStatus().isEmpty()){
+            query.addCriteria(Criteria.where("status").is("active"));
+        }
+
         int page = queryDTO.getPage();
         int pageSize = queryDTO.getPageSize();
         query.skip((long) (page -1) * pageSize).limit(pageSize);
@@ -53,6 +57,10 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom{
 
         if(!queryDTO.isDeleted()){
             query.addCriteria(Criteria.where("isDeleted").is(false));
+        }
+
+        if(queryDTO.getStatus() != null && !queryDTO.getStatus().isEmpty()){
+            query.addCriteria(Criteria.where("status").is("active"));
         }
 
         return mongoTemplate.count(query, Product.class);

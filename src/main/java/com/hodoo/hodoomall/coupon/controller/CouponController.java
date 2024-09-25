@@ -12,25 +12,20 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/coupon")
+@RequestMapping("/api/coupons")
 public class CouponController {
 
     private final CouponService couponService;
 
-
-    @PostMapping()
-    public ResponseEntity<?> createCoupon(@RequestBody CouponDTO couponDTO){
-
-        System.out.println(couponDTO);
+    @GetMapping("{id}")
+    public ResponseEntity<?> getCouponDetail(@PathVariable("id") String id){
 
         try {
-            couponService.createCoupon(couponDTO);
-            return ResponseEntity.ok().body(Map.of("status", "success"));
+            CouponDTO couponDTO = couponService.getCouponDetail(id);
+            return ResponseEntity.ok().body(Map.of("status", "success", "selectedCoupon", couponDTO));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(Map.of("status", "error", "error", e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("status", "success", "error", e.getMessage()));
         }
-
     }
 
     @GetMapping()
@@ -46,35 +41,7 @@ public class CouponController {
             return ResponseEntity.badRequest().body(Map.of("status", "success", "error", e.getMessage()));
         }
 
-
     }
-
-    @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteCoupon(@PathVariable("id") String id){
-
-        System.out.println(id);
-
-        try {
-            couponService.deleteCoupon(id);
-            return ResponseEntity.ok().body(Map.of("status", "success"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("status", "success", "error", e.getMessage()));
-        }
-
-    }
-
-    @GetMapping("{id}")
-    public ResponseEntity<?> getCouponDetail(@PathVariable("id") String id){
-
-        try {
-            CouponDTO couponDTO = couponService.getCouponDetail(id);
-            return ResponseEntity.ok().body(Map.of("status", "success", "selectedCoupon", couponDTO));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("status", "success", "error", e.getMessage()));
-        }
-    }
-
-
 
 
 
