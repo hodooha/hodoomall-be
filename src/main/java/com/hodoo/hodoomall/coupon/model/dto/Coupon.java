@@ -19,11 +19,18 @@ public class Coupon {
     @NotBlank
     private String description;
     @NotBlank
-    private int dcRate;
+    private String type;
+    @NotBlank
+    private int dcAmount;
     @NotBlank
     private int minCost;
     @NotBlank
     private int duration;
+
+    private String image;
+
+    @NotBlank
+    private String status = "active";
 
     @NotBlank
     private boolean isDeleted = false;

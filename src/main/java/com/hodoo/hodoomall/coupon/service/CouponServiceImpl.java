@@ -16,11 +16,16 @@ import java.util.List;
 public class CouponServiceImpl implements CouponService{
 
     private final CouponRepository couponRepository;
+    static final String DC_RATE = "dcRate";
+    static final String DC_PRICE = "dcPrice";
+
 
     @Override
     public void createCoupon(CouponDTO couponDTO) throws Exception {
 
-        if(couponDTO.getDcRate() < 0 || couponDTO.getDcRate() > 100) throw new Exception("할인율은 0과 100 사이의 값이어야 합니다.");
+        if(couponDTO.getType().equals(DC_RATE) && (couponDTO.getDcAmount() < 0 || couponDTO.getDcAmount() > 100)) throw new Exception("할인율은 0과 100 사이의 값이어야 합니다.");
+        if(couponDTO.getType().equals(DC_PRICE) && couponDTO.getDcAmount() < 0 ) throw new Exception("할인금액은 0원보다 커야합니다.");
+
         if(couponDTO.getDuration() < 0) throw new Exception("유효 기간은 1일 이상이어야 합니다.");
         Coupon coupon = couponDTO.toEntity();
         couponRepository.save(coupon);
