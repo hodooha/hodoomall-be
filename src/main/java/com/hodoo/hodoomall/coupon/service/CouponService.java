@@ -20,4 +20,6 @@ public interface CouponService {
     void minusCouponQty(ObjectId couponId) throws Exception;
 
     boolean checkCouponQty(ObjectId couponId) throws Exception;
+
+    void editCoupon(CouponDTO couponDTO) throws Exception;
 }

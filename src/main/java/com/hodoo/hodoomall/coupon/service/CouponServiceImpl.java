@@ -89,5 +89,22 @@ public class CouponServiceImpl implements CouponService{
 
     }
 
+    @Override
+    public void editCoupon(CouponDTO couponDTO) throws Exception {
+
+        Coupon coupon = couponRepository.findById(couponDTO.getId()).orElseThrow(() -> new Exception("쿠폰이 존재하지 않습니다."));
+
+        if(couponDTO.getType().equals(DC_RATE) && (couponDTO.getDcAmount() < 0 || couponDTO.getDcAmount() > 100)) throw new Exception("할인율은 0과 100 사이의 값이어야 합니다.");
+        if(couponDTO.getType().equals(DC_PRICE) && couponDTO.getDcAmount() < 0 ) throw new Exception("할인금액은 0원보다 커야합니다.");
+
+        if(couponDTO.getDuration() < 0) throw new Exception("유효 기간은 1일 이상이어야 합니다.");
+
+        Coupon updatedCoupon = couponDTO.toEntity();
+        updatedCoupon.setId(couponDTO.getId());
+        couponRepository.save(updatedCoupon);
+
+
+    }
+
 
 }

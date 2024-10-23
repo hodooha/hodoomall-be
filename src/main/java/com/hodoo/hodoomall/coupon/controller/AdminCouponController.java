@@ -30,6 +30,20 @@ public class AdminCouponController {
 
     }
 
+    @PutMapping()
+    public ResponseEntity<?> editCoupon(@RequestBody CouponDTO couponDTO){
+
+        try{
+            couponService.editCoupon(couponDTO);
+            return ResponseEntity.ok().body(Map.of("status", "success"));
+        } catch(Exception e){
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("status", "error", "error", e.getMessage()));
+        }
+
+
+    }
+
 
 
     @DeleteMapping("{id}")
