@@ -10,6 +10,7 @@ import com.hodoo.hodoomall.user.model.dto.User;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class CartServiceImpl implements CartService {
     private final ProductRepository productRepository;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public List<CartDTO.CartItemDTO> getCartItems(User user) throws Exception {
 
         Cart cart;
@@ -75,6 +77,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void addItemToCart(User user, Cart.CartItem cartItem) throws Exception {
 
         Cart cart;

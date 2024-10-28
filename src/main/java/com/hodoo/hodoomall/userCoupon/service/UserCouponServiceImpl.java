@@ -12,6 +12,7 @@ import com.hodoo.hodoomall.userCoupon.model.dto.UserCouponDTO;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,6 +28,7 @@ public class UserCouponServiceImpl implements UserCouponService {
     private final CouponRepository couponRepository;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void createUserCoupon(UserCouponDTO userCouponDTO) throws Exception {
 
         if (!userCouponRepository.findAllByCouponIdAndUserId(userCouponDTO.getCouponId(), userCouponDTO.getUserId()).isEmpty())
@@ -62,12 +64,15 @@ public class UserCouponServiceImpl implements UserCouponService {
     }
 
     @Override
-    public void useUserCoupon(String userCouponId) throws Exception {
+    public void useUserCoupon(String userCouponId, int totalPrice) throws Exception {
 
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId).orElseThrow(() -> new Exception("쿠폰이 존재하지 않습니다."));
 
         if (userCoupon.getExpiredAt().isBefore(LocalDate.now())) throw new Exception("기간 만료된 쿠폰입니다.");
 
+        if (couponService.getCouponDetail(userCoupon.getCouponId().toString()).getMinCost() < totalPrice) {
+            throw new Exception("최소 주문 금액 조건이 맞지 않습니다.");
+        }
         userCoupon.setUsed(true);
         userCoupon.setUsedAt(LocalDateTime.now());
         userCouponRepository.save(userCoupon);

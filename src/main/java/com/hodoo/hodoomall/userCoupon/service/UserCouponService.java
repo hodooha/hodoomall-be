@@ -10,5 +10,5 @@ public interface UserCouponService {
 
     List<UserCouponDTO> getUserCouponList(User user) throws Exception;
 
-    void useUserCoupon(String userCouponId) throws Exception;
+    void useUserCoupon(String userCouponId, int totalPrice) throws Exception;
 }

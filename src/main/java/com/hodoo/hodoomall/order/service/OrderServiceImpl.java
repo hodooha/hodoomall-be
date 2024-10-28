@@ -14,6 +14,7 @@ import com.hodoo.hodoomall.userCoupon.service.UserCouponService;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Order createOrder(User user, OrderDTO data) throws Exception {
 
         Order order = new Order();
@@ -54,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if(data.getUserCouponId() != null) {
-            userCouponService.useUserCoupon(data.getUserCouponId());
+            userCouponService.useUserCoupon(data.getUserCouponId(), data.getTotalPrice());
         }
 
         order.setContact(data.getContact().toEntity());
@@ -71,6 +73,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public List<OrderDTO> getOrder(QueryDTO queryDTO) throws Exception {
 
         List<Order> orders = orderRepository.findByQuery(queryDTO);

@@ -14,5 +14,7 @@ public class QueryDTO {
     private int pageSize = 5;
     private User user;
     private String status;
+    private String sortBy;
+    private String productName;
 
 }
