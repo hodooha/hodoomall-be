@@ -46,7 +46,7 @@ public class OrderController {
             queryDTO.setUser(user);
             List<OrderDTO> orderList = orderService.getOrder(queryDTO);
             long totalOrders = orderService.getTotalOrderCount(queryDTO);
-            int totalPageNum = (int) Math.ceil((double) totalOrders/queryDTO.getPageSize());
+            int totalPageNum = (int) Math.ceil((double) totalOrders / queryDTO.getPageSize());
 
             System.out.println(orderList);
             return ResponseEntity.ok().body(Map.of("status", "success", "orderList", orderList, "totalPageNum", totalPageNum));
@@ -59,9 +59,21 @@ public class OrderController {
 
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<?> cancelOrder(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable("id") String id) {
 
+        try {
+            QueryDTO queryDTO = new QueryDTO();
+            queryDTO.setId(id);
+            queryDTO.setUser(customUserDetails.getUser());
+            System.out.println(queryDTO);
+            orderService.cancelOrder(queryDTO);
+            return ResponseEntity.ok().body(Map.of("status", "success"));
 
-
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
+        }
+    }
 
 
 }

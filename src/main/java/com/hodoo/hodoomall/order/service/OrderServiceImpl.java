@@ -55,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
             productService.updateStock(i);
         }
 
-        if(data.getUserCouponId() != null) {
+        if (data.getUserCouponId() != null) {
             userCouponService.useUserCoupon(data.getUserCouponId(), data.getTotalPrice());
         }
 
@@ -100,10 +100,25 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void updateOrder(QueryDTO queryDTO) throws Exception {
 
-        Order order = orderRepository.findById(queryDTO.getId()).orElseThrow(()-> new Exception("주문이 존재하지 않습니다."));
+        Order order = orderRepository.findById(queryDTO.getId()).orElseThrow(() -> new Exception("주문이 존재하지 않습니다."));
 
         order.setStatus(queryDTO.getStatus());
         orderRepository.save(order);
+
+    }
+
+    @Override
+    public void cancelOrder(QueryDTO queryDTO) throws Exception {
+
+        Order order = orderRepository.findById(queryDTO.getId()).orElseThrow(() -> new Exception("주문이 존재하지 않습니다."));
+
+        if(order.getStatus().equals("preparing")){
+            order.setStatus("canceled");
+            orderRepository.save(order);
+        } else{
+            throw new Exception("주문 취소는 배송 시작 전에만 가능합니다.");
+        }
+
 
     }
 }

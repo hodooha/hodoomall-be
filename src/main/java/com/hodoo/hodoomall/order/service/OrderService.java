@@ -15,4 +15,6 @@ public interface OrderService {
     long getTotalOrderCount(QueryDTO queryDTO) throws Exception;
 
     void updateOrder(QueryDTO queryDTO) throws Exception;
+
+    void cancelOrder(QueryDTO queryDTO) throws Exception;
 }
