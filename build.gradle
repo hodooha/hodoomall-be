@@ -48,6 +48,15 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-validation
 	implementation 'org.springframework.boot:spring-boot-starter-validation:3.3.2'
 
+	// redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	// RabbitMQ
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+	implementation 'org.springframework.retry:spring-retry'
+	implementation("org.springframework:spring-aspects")
+
 
 //	implementation 'org.apache.logging.log4j:log4j-mongodb4'
 //	implementation 'org.apache.logging.log4j:log4j-core'

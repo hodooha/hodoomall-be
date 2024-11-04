@@ -8,7 +8,13 @@ import java.util.List;
 public interface UserCouponService {
     void createUserCoupon(UserCouponDTO userCouponDTO) throws Exception;
 
+    void createUserCoupon0(UserCouponDTO userCouponDTO) throws Exception;
+
+    void createUserCoupon1(UserCouponDTO userCouponDTO) throws Exception;
+
     List<UserCouponDTO> getUserCouponList(User user) throws Exception;
 
     void useUserCoupon(String userCouponId, int totalPrice) throws Exception;
+
+    void checkUserCoupon(UserCouponDTO userCouponDTO) throws Exception;
 }

@@ -23,12 +23,18 @@ public class UserCouponController {
     @PostMapping()
     public ResponseEntity<?> createUserCoupon(@RequestBody UserCouponDTO userCouponDTO, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        System.out.println(userCouponDTO);
+
+//        System.out.println(userCouponDTO);
 
         try {
             User user = customUserDetails.getUser();
             userCouponDTO.setUserId(new ObjectId(user.getId()));
-            userCouponService.createUserCoupon(userCouponDTO);
+            // 캐싱X, 메시지큐X
+//            userCouponService.createUserCoupon0(userCouponDTO);
+            // 캐싱O, 메시지큐X
+//            userCouponService.createUserCoupon(userCouponDTO);
+            // 캐싱O, 메시지큐O
+            userCouponService.checkUserCoupon(userCouponDTO);
             return ResponseEntity.ok().body(Map.of("status", "success"));
         } catch (Exception e) {
             e.printStackTrace();
