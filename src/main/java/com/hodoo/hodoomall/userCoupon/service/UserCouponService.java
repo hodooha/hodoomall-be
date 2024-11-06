@@ -17,4 +17,6 @@ public interface UserCouponService {
     void useUserCoupon(String userCouponId, int totalPrice) throws Exception;
 
     void checkUserCoupon(UserCouponDTO userCouponDTO) throws Exception;
+
+    void createUserCoupon2(UserCouponDTO userCouponDTO)  throws Exception;
 }

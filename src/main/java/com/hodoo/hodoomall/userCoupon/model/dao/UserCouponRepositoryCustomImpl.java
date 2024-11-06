@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -21,32 +22,48 @@ public class UserCouponRepositoryCustomImpl implements UserCouponRepositoryCusto
     public List<UserCoupon> findByQuery(QueryDTO queryDTO) {
 
         Query query = new Query();
-        if(queryDTO.getCouponId() != null){
+        if (queryDTO.getCouponId() != null) {
             query.addCriteria(Criteria.where("couponId").is(queryDTO.getCouponId()));
         }
 
-        if(queryDTO.getUserId() != null){
+        if (queryDTO.getUserId() != null) {
             query.addCriteria(Criteria.where("userId").is(queryDTO.getUserId()));
         }
 
-        if(queryDTO.isExpired()){
+        if (queryDTO.isExpired()) {
             query.addCriteria(Criteria.where("expiredAt").lte(LocalDate.now()));
-        }else{
+        } else {
             query.addCriteria(Criteria.where("expiredAt").gt(LocalDate.now()));
         }
 
-        if(queryDTO.isUsed()){
+        if (queryDTO.isUsed()) {
             query.addCriteria(Criteria.where("isUsed").is(true));
-        } else{
+        } else {
             query.addCriteria(Criteria.where("isUsed").is(false));
         }
 
 
-
         int page = queryDTO.getPage();
         int pageSize = queryDTO.getPageSize();
-        query.skip((long) (page -1) * pageSize).limit(pageSize);
+        query.skip((long) (page - 1) * pageSize).limit(pageSize);
 
         return mongoTemplate.find(query, UserCoupon.class);
+    }
+
+    @Override
+    public void useUserCoupon(String userCouponId) throws Exception{
+
+        Query query = new Query();
+        Update update = new Update();
+
+        query.addCriteria(Criteria.where("_id").is(userCouponId).and("isUsed").is(false));
+        query.addCriteria(Criteria.where("expiredAt").gte(LocalDate.now()));
+
+        update.set("isUsed", true);
+        update.currentDate("usedAt");
+
+        UserCoupon userCoupon = mongoTemplate.findAndModify(query, update, UserCoupon.class);
+
+        if (userCoupon == null) throw new Exception("쿠폰이 존재하지 않거나 사용 조건을 충족하지 않습니다.");
     }
 }

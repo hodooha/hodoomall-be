@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface UserCouponRepositoryCustom {
     List<UserCoupon> findByQuery(QueryDTO queryDTO);
+
+    void useUserCoupon(String userCouponId) throws Exception;
+
 }

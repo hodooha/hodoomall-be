@@ -10,7 +10,6 @@ import com.hodoo.hodoomall.userCoupon.model.dto.QueryDTO;
 import com.hodoo.hodoomall.userCoupon.model.dto.UserCoupon;
 import com.hodoo.hodoomall.userCoupon.model.dto.UserCouponDTO;
 import com.hodoo.hodoomall.userCoupon.model.dto.UserCouponRequestDTO;
-import com.mongodb.MongoCommandException;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -21,8 +20,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +44,7 @@ public class UserCouponServiceImpl implements UserCouponService {
     // 캐싱X, 메시지큐X
     @Retryable(
             // 트랜잭션 충돌 발생 시 재시도
-            maxAttempts = 30, // 최대 3번 재시도
+            maxAttempts = 30,
             backoff = @Backoff(delay = 150, multiplier = 1.1) // 150ms부터 시작, 1.1배씩 증가
     )
     @Transactional(rollbackFor = Exception.class)
@@ -64,15 +61,26 @@ public class UserCouponServiceImpl implements UserCouponService {
 
     }
 
-    // 캐싱O, 메시지큐X
-    @Override
+    // 캐싱X, 메시지큐O
     @Retryable(
             // 트랜잭션 충돌 발생 시 재시도
-            value = {MongoCommandException.class},
-            maxAttempts = 20, // 최대 3번 재시도
+            maxAttempts = 30,
             backoff = @Backoff(delay = 150, multiplier = 1.1) // 150ms부터 시작, 1.1배씩 증가
     )
-    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void createUserCoupon2(UserCouponDTO userCouponDTO) throws Exception {
+
+        if (!userCouponRepository.findAllByCouponIdAndUserId(userCouponDTO.getCouponId(), userCouponDTO.getUserId()).isEmpty())
+            throw new Exception("이미 다운받은 쿠폰입니다.");
+
+        couponService.minusCouponQty0(userCouponDTO.getCouponId());
+
+        rabbitTemplate.convertAndSend(exchangeName, routingKey, new UserCouponRequestDTO(userCouponDTO.getCouponId().toString(), userCouponDTO.getUserId().toString(), userCouponDTO.getDuration()));
+
+    }
+
+    // 캐싱O, 메시지큐X
+    @Override
     public void createUserCoupon(UserCouponDTO userCouponDTO) throws Exception {
 
         if (!userCouponRepository.findAllByCouponIdAndUserId(userCouponDTO.getCouponId(), userCouponDTO.getUserId()).isEmpty())
@@ -138,15 +146,11 @@ public class UserCouponServiceImpl implements UserCouponService {
 
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId).orElseThrow(() -> new Exception("쿠폰이 존재하지 않습니다."));
 
-        if (userCoupon.getExpiredAt().isBefore(LocalDate.now())) throw new Exception("기간 만료된 쿠폰입니다.");
-
         if (couponService.getCouponDetail(userCoupon.getCouponId().toString()).getMinCost() < totalPrice) {
             throw new Exception("최소 주문 금액 조건이 맞지 않습니다.");
         }
-        userCoupon.setUsed(true);
-        userCoupon.setUsedAt(LocalDateTime.now());
-        userCouponRepository.save(userCoupon);
 
+        userCouponRepository.useUserCoupon(userCouponId);
     }
 
 
