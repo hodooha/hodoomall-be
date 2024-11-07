@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -22,29 +21,24 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void createProduct(ProductDTO productDTO) throws Exception {
-
+        if (productDTO.getSku() == null || productDTO.getName() == null || productDTO.getDescription() == null || productDTO.getName().isEmpty() || productDTO.getCategory() == null || productDTO.getCategory().isEmpty() || productDTO.getPrice() <= 0 || productDTO.getStock() == null || productDTO.getStock().isEmpty())
+            throw new Exception("필수 입력 사항을 모두 채워주세요.");
         productRepository.save(productDTO.toEntity());
     }
 
-
     @Override
     public List<ProductDTO> getProductList(QueryDTO queryDTO) throws Exception {
-
         List<Product> data = productRepository.findByQuery(queryDTO);
         System.out.println(data);
-
         List<ProductDTO> productList = new ArrayList<>();
         for (Product p : data) {
-
             productList.add(new ProductDTO(p));
         }
-
         return productList;
     }
 
     @Override
     public long getTotalProductCount(QueryDTO queryDTO) throws Exception {
-
         return productRepository.getTotalProductCount(queryDTO);
     }
 
@@ -64,62 +58,30 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public void deleteProduct(String id) throws Exception {
-
-        Optional<Product> existingProduct = productRepository.findById(id);
-        if (existingProduct.isPresent()) {
-            Product targetProduct = existingProduct.get();
-
-            targetProduct.setDeleted(true);
-            productRepository.save(targetProduct);
-
-        } else {
+        try {
+            productRepository.deleteById(id);
+        } catch (Exception e){
             throw new Exception("상품이 존재하지 않습니다.");
         }
     }
 
     @Override
     public ProductDTO getProductDetail(String id) throws Exception {
-
-        Optional<Product> existingProduct = productRepository.findById(id);
-
-        if (existingProduct.isPresent()) {
-            Product product = existingProduct.get();
-
-            return new ProductDTO(product);
-        } else {
-            throw new Exception("상품이 존재하지 않습니다.");
-        }
-
-
+        Product existingProduct = productRepository.findById(id).orElseThrow(() -> new Exception("상품이 존재하지 않습니다."));
+        return new ProductDTO(existingProduct);
     }
 
     @Override
-    public StockCheckResultDTO checkStock(OrderDTO.OrderItemDTO orderItemDTO) throws Exception {
+    public StockCheckResultDTO checkAndUpdateStock(OrderDTO.OrderItemDTO orderItemDTO) throws Exception {
 
-        Product product = productRepository.findById(orderItemDTO.getProductId().toString()).orElseThrow(() -> new Exception("해당 상품이 존재하지 않습니다."));
+        Product updatedProduct = productRepository.updateStock(orderItemDTO);
 
-
-        if (product.getStock().get(orderItemDTO.getSize()) < orderItemDTO.getQty()) {
+        if (updatedProduct == null) {
+            Product product = productRepository.findById(orderItemDTO.getProductId().toString()).orElseThrow(() -> new Exception("상품이 존재하지 않습니다."));
             return new StockCheckResultDTO(false, product.getName() + "의 " + orderItemDTO.getSize() + "재고가 부족합니다.");
         } else {
-
             return new StockCheckResultDTO(true, null);
         }
-
-    }
-
-    @Override
-    public void updateStock(OrderDTO.OrderItemDTO orderItemDTO) throws Exception {
-
-        Product product = productRepository.findById(orderItemDTO.getProductId().toString()).orElseThrow(() -> new Exception("해당 상품이 존재하지 않습니다."));
-
-        Map<String, Integer> stock = product.getStock();
-        stock.put(orderItemDTO.getSize(), stock.get(orderItemDTO.getSize()) - orderItemDTO.getQty());
-        if(stock.get(orderItemDTO.getSize()) < 0) throw new Exception("재고가 부족합니다.") ;
-        product.setStock(stock);
-        productRepository.save(product);
-
-
     }
 
 

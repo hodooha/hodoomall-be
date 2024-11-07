@@ -56,8 +56,7 @@ public class CouponRepositoryImpl implements CouponRepositoryCustom {
 
         query.addCriteria(Criteria.where("_id").is(couponId.toString()).and("totalQty").gt(0));
         Update update = new Update().inc("totalQty", -1);
-        Coupon coupon = mongoTemplate.findAndModify(query, update, Coupon.class);
 
-        return coupon;
+        return mongoTemplate.findAndModify(query, update, Coupon.class);
     }
 }

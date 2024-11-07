@@ -9,6 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -79,5 +80,29 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
         }
 
         return mongoTemplate.count(query, Order.class);
+    }
+
+    @Override
+    public Order updateOrder(QueryDTO queryDTO) {
+
+        Query query = new Query();
+        Update update = new Update();
+
+        query.addCriteria(Criteria.where("_id").is(queryDTO.getId()));
+        update.set("status", queryDTO.getStatus());
+
+        return mongoTemplate.findAndModify(query, update, Order.class);
+    }
+
+    @Override
+    public Order cancelOrder(QueryDTO queryDTO){
+
+        Query query = new Query();
+        Update update = new Update();
+
+        query.addCriteria(Criteria.where("_id").is(queryDTO.getId()).and("status").is("preparing"));
+        update.set("status", "canceled");
+
+        return mongoTemplate.findAndModify(query, update, Order.class);
     }
 }

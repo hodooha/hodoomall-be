@@ -10,4 +10,8 @@ public interface OrderRepositoryCustom {
     List<Order> findByQuery(QueryDTO queryDTO);
 
     long getTotalOrderCount(QueryDTO queryDTO);
+
+    Order updateOrder(QueryDTO queryDTO);
+
+    Order cancelOrder(QueryDTO queryDTO);
 }

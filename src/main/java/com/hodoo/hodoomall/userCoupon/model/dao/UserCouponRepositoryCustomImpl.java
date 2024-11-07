@@ -51,7 +51,7 @@ public class UserCouponRepositoryCustomImpl implements UserCouponRepositoryCusto
     }
 
     @Override
-    public void useUserCoupon(String userCouponId) throws Exception{
+    public UserCoupon useUserCoupon(String userCouponId){
 
         Query query = new Query();
         Update update = new Update();
@@ -62,8 +62,6 @@ public class UserCouponRepositoryCustomImpl implements UserCouponRepositoryCusto
         update.set("isUsed", true);
         update.currentDate("usedAt");
 
-        UserCoupon userCoupon = mongoTemplate.findAndModify(query, update, UserCoupon.class);
-
-        if (userCoupon == null) throw new Exception("쿠폰이 존재하지 않거나 사용 조건을 충족하지 않습니다.");
+        return mongoTemplate.findAndModify(query, update, UserCoupon.class);
     }
 }

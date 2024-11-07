@@ -1,5 +1,6 @@
 package com.hodoo.hodoomall.userCoupon.service;
 
+import com.hodoo.hodoomall.order.model.dto.OrderDTO;
 import com.hodoo.hodoomall.user.model.dto.User;
 import com.hodoo.hodoomall.userCoupon.model.dto.UserCouponDTO;
 
@@ -14,9 +15,11 @@ public interface UserCouponService {
 
     List<UserCouponDTO> getUserCouponList(User user) throws Exception;
 
-    void useUserCoupon(String userCouponId, int totalPrice) throws Exception;
+    void useUserCoupon(String userCouponId) throws Exception;
 
     void checkUserCoupon(UserCouponDTO userCouponDTO) throws Exception;
 
-    void createUserCoupon2(UserCouponDTO userCouponDTO)  throws Exception;
+    void createUserCoupon2(UserCouponDTO userCouponDTO) throws Exception;
+
+    void verifyUserCoupon(OrderDTO data) throws Exception;
 }

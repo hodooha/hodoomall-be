@@ -39,8 +39,4 @@ public class Product {
     @NotBlank
     private String status = "active";
 
-    @NotBlank
-    private boolean isDeleted = false;
-
-
 }

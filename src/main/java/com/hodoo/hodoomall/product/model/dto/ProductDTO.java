@@ -19,7 +19,6 @@ public class ProductDTO {
     private int price;
     private Map<String, Integer> stock;
     private String status = "active";
-    private boolean isDeleted = false;
 
     public Product toEntity(){
         Product product = new Product();
@@ -44,7 +43,6 @@ public class ProductDTO {
         this.price = product.getPrice();
         this.stock = product.getStock();
         this.status = product.getStatus();
-        this.isDeleted = product.isDeleted();
     }
 
 

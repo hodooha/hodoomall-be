@@ -4,6 +4,7 @@ import com.hodoo.hodoomall.coupon.model.dao.CouponRepository;
 import com.hodoo.hodoomall.coupon.model.dto.Coupon;
 import com.hodoo.hodoomall.coupon.model.dto.CouponDTO;
 import com.hodoo.hodoomall.coupon.service.CouponService;
+import com.hodoo.hodoomall.order.model.dto.OrderDTO;
 import com.hodoo.hodoomall.user.model.dto.User;
 import com.hodoo.hodoomall.userCoupon.model.dao.UserCouponRepository;
 import com.hodoo.hodoomall.userCoupon.model.dto.QueryDTO;
@@ -32,14 +33,11 @@ public class UserCouponServiceImpl implements UserCouponService {
     private final CouponRepository couponRepository;
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${rabbitmq.queue.name}")
-    private String queueName;
-
     @Value("${rabbitmq.exchange.name}")
     private String exchangeName;
 
-    @Value("${rabbitmq.routing.key}")
-    private String routingKey;
+    @Value("${rabbitmq.coupon.routing.key}")
+    private String couponRoutingKey;
 
     // 캐싱X, 메시지큐X
     @Retryable(
@@ -75,8 +73,14 @@ public class UserCouponServiceImpl implements UserCouponService {
 
         couponService.minusCouponQty0(userCouponDTO.getCouponId());
 
-        rabbitTemplate.convertAndSend(exchangeName, routingKey, new UserCouponRequestDTO(userCouponDTO.getCouponId().toString(), userCouponDTO.getUserId().toString(), userCouponDTO.getDuration()));
+        rabbitTemplate.convertAndSend(exchangeName, couponRoutingKey, new UserCouponRequestDTO(userCouponDTO.getCouponId().toString(), userCouponDTO.getUserId().toString(), userCouponDTO.getDuration()));
 
+    }
+
+    @Override
+    public void verifyUserCoupon(OrderDTO data) throws Exception {
+        if (couponService.getCouponDetail(data.getUserCouponId().toString()).getMinCost() > data.getTotalPrice())
+            throw new Exception("쿠폰 사용 조건을 충족하지 않습니다.");
     }
 
     // 캐싱O, 메시지큐X
@@ -98,11 +102,11 @@ public class UserCouponServiceImpl implements UserCouponService {
         }
 
         couponService.minusCouponQty(userCouponDTO.getCouponId());
-        rabbitTemplate.convertAndSend(exchangeName, routingKey, new UserCouponRequestDTO(userCouponDTO.getCouponId().toString(), userCouponDTO.getUserId().toString(), userCouponDTO.getDuration()));
+        rabbitTemplate.convertAndSend(exchangeName, couponRoutingKey, new UserCouponRequestDTO(userCouponDTO.getCouponId().toString(), userCouponDTO.getUserId().toString(), userCouponDTO.getDuration()));
     }
 
     // 캐싱O, 메시지큐O
-    @RabbitListener(queues = "${rabbitmq.queue.name}", concurrency = "10-20")
+    @RabbitListener(queues = "#{@couponQueue}", concurrency = "10-20")
     public void manageUserCouponRequest(UserCouponRequestDTO userCouponRequestDTO) throws Exception {
 
         UserCouponDTO userCouponDTO = new UserCouponDTO();
@@ -142,15 +146,11 @@ public class UserCouponServiceImpl implements UserCouponService {
     }
 
     @Override
-    public void useUserCoupon(String userCouponId, int totalPrice) throws Exception {
+    public void useUserCoupon(String userCouponId) throws Exception {
 
-        UserCoupon userCoupon = userCouponRepository.findById(userCouponId).orElseThrow(() -> new Exception("쿠폰이 존재하지 않습니다."));
+        UserCoupon usedCoupon = userCouponRepository.useUserCoupon(userCouponId);
 
-        if (couponService.getCouponDetail(userCoupon.getCouponId().toString()).getMinCost() < totalPrice) {
-            throw new Exception("최소 주문 금액 조건이 맞지 않습니다.");
-        }
-
-        userCouponRepository.useUserCoupon(userCouponId);
+        if (usedCoupon == null) throw new Exception("쿠폰이 존재하지 않거나 사용 조건을 충족하지 않습니다.");
     }
 
 

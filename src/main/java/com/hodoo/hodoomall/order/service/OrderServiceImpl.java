@@ -34,6 +34,10 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(rollbackFor = Exception.class)
     public Order createOrder(User user, OrderDTO data) throws Exception {
 
+        if (data.getUserCouponId() != null) {
+            userCouponService.verifyUserCoupon(data);
+        }
+
         Order order = new Order();
 
         List<OrderDTO.OrderItemDTO> items = data.getItems();
@@ -41,22 +45,17 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderDTO.OrderItemDTO i : items) {
 
-            StockCheckResultDTO result = productService.checkStock(i);
+            StockCheckResultDTO result = productService.checkAndUpdateStock(i);
 
             if (!result.isVerify()) {
                 insufficientStockItems.add(result.getMessage());
             }
-
         }
 
         if (!insufficientStockItems.isEmpty()) throw new Exception(insufficientStockItems.toString());
 
-        for (OrderDTO.OrderItemDTO i : items) {
-            productService.updateStock(i);
-        }
-
         if (data.getUserCouponId() != null) {
-            userCouponService.useUserCoupon(data.getUserCouponId(), data.getTotalPrice());
+            userCouponService.useUserCoupon(data.getUserCouponId());
         }
 
         order.setContact(data.getContact().toEntity());
@@ -99,26 +98,14 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void updateOrder(QueryDTO queryDTO) throws Exception {
-
-        Order order = orderRepository.findById(queryDTO.getId()).orElseThrow(() -> new Exception("주문이 존재하지 않습니다."));
-
-        order.setStatus(queryDTO.getStatus());
-        orderRepository.save(order);
+        Order updatedOrder = orderRepository.updateOrder(queryDTO);
+        if (updatedOrder == null) throw new Exception("주문이 존재하지 않습니다.");
 
     }
 
     @Override
     public void cancelOrder(QueryDTO queryDTO) throws Exception {
-
-        Order order = orderRepository.findById(queryDTO.getId()).orElseThrow(() -> new Exception("주문이 존재하지 않습니다."));
-
-        if(order.getStatus().equals("preparing")){
-            order.setStatus("canceled");
-            orderRepository.save(order);
-        } else{
-            throw new Exception("주문 취소는 배송 시작 전에만 가능합니다.");
-        }
-
-
+        Order order = orderRepository.cancelOrder(queryDTO);
+        if (order == null) throw new Exception("주문이 존재하지 않거나 배송이 시작되어 주문 취소가 불가합니다.");
     }
 }

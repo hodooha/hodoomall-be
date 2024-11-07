@@ -22,7 +22,5 @@ public interface ProductService {
 
 //    List<StockCheckResultDTO> checkItemListStock(List<OrderDTO.OrderItemDTO> items) throws Exception;
 
-    StockCheckResultDTO checkStock(OrderDTO.OrderItemDTO itemDTO) throws Exception;
-
-    void updateStock(OrderDTO.OrderItemDTO i) throws Exception;
+    StockCheckResultDTO checkAndUpdateStock(OrderDTO.OrderItemDTO i) throws Exception;
 }

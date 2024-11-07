@@ -1,11 +1,13 @@
 package com.hodoo.hodoomall.product.model.dao;
 
+import com.hodoo.hodoomall.order.model.dto.OrderDTO;
 import com.hodoo.hodoomall.product.model.dto.Product;
 import com.hodoo.hodoomall.product.model.dto.QueryDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,12 +30,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom{
             query.addCriteria(Criteria.where("category").regex(queryDTO.getCategory(), "i"));
         }
 
-        if(!queryDTO.isDeleted()){
-            query.addCriteria(Criteria.where("isDeleted").is(false));
-        }
-
         if(queryDTO.getStatus() != null && !queryDTO.getStatus().isEmpty()){
-            query.addCriteria(Criteria.where("status").is("active"));
+            query.addCriteria(Criteria.where("status").is(queryDTO.getStatus()));
         }
 
         int page = queryDTO.getPage();
@@ -55,15 +53,25 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom{
             query.addCriteria(Criteria.where("category").regex(queryDTO.getCategory(), "i"));
         }
 
-        if(!queryDTO.isDeleted()){
-            query.addCriteria(Criteria.where("isDeleted").is(false));
-        }
-
         if(queryDTO.getStatus() != null && !queryDTO.getStatus().isEmpty()){
             query.addCriteria(Criteria.where("status").is("active"));
         }
 
         return mongoTemplate.count(query, Product.class);
+    }
+
+    @Override
+    public Product updateStock(OrderDTO.OrderItemDTO orderItemDTO){
+        Query query = new Query();
+        Update update = new Update();
+
+        query.addCriteria(Criteria.where("_id").is(orderItemDTO.getProductId().toString()));
+        query.addCriteria(Criteria.where("stock." +orderItemDTO.getSize()).gte(orderItemDTO.getQty()));
+
+        update.inc("stock."+orderItemDTO.getSize(), -orderItemDTO.getQty());
+
+        return mongoTemplate.findAndModify(query, update, Product.class);
+
     }
 
 }

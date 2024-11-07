@@ -30,23 +30,23 @@ public class RabbitmqConfig {
     @Value("${spring.rabbitmq.password}")
     private String rabbitmqPassword;
 
-    @Value("${rabbitmq.queue.name}")
-    private String queueName;
-
     @Value("${rabbitmq.exchange.name}")
     private String exchangeName;
 
-    @Value("${rabbitmq.routing.key}")
-    private String routingKey;
+    @Value("${rabbitmq.coupon.queue.name}")
+    private String couponQueueName;
+
+    @Value("${rabbitmq.coupon.routing.key}")
+    private String couponRoutingKey;
 
     /**
      * 지정된 큐 이름으로 Queue 빈을 생성
      *
      * @return Queue 빈 객체
      */
-    @Bean
-    public Queue queue() {
-        return new Queue(queueName);
+    @Bean(name = "couponQueue")
+    public Queue couponQueue() {
+        return new Queue(couponQueueName);
     }
 
     /**
@@ -67,8 +67,8 @@ public class RabbitmqConfig {
      * @return Binding 빈 객체
      */
     @Bean
-    public Binding binding(Queue queue, DirectExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(routingKey);
+    public Binding couponBinding(Queue couponQueue, DirectExchange exchange) {
+        return BindingBuilder.bind(couponQueue).to(exchange).with(couponRoutingKey);
     }
 
     /**

@@ -8,7 +8,6 @@ public class QueryDTO {
     private String name;
     private int page = 1;
     private String category;
-    private boolean isDeleted = false;
     private String status = "active";
     private int pageSize = 5;
 
