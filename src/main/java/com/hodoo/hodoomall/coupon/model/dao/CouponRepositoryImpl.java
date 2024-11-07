@@ -27,10 +27,6 @@ public class CouponRepositoryImpl implements CouponRepositoryCustom {
             query.addCriteria(Criteria.where("name").regex(queryDTO.getName(), "i"));
         }
 
-        if(!queryDTO.isDeleted()){
-            query.addCriteria(Criteria.where("isDeleted").is(false));
-        }
-
         int page = queryDTO.getPage();
         int pageSize = queryDTO.getPageSize();
         query.skip((long) (page-1) * pageSize).limit(pageSize);

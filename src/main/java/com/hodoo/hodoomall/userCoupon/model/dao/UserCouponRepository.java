@@ -11,4 +11,6 @@ public interface UserCouponRepository extends MongoRepository<UserCoupon, String
     List<UserCoupon> findAllByCouponIdAndUserId(ObjectId couponId, ObjectId userId);
 
     List<UserCoupon> findAllByUserIdAndIsUsed(ObjectId userId, Boolean isUsed);
+
+    void deleteByCouponId(String couponId);
 }

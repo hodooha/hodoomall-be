@@ -48,10 +48,10 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
         int pageSize = queryDTO.getPageSize();
         query.skip((long) (page-1) * pageSize).limit(pageSize);
 
-        if(queryDTO.getSortBy().equals("earliest")){
-            query.with(Sort.by(Sort.Direction.ASC, "createdAt"));
-        } else{
+        if(queryDTO.getSortBy() == null || queryDTO.getSortBy().equals("latest")){
             query.with(Sort.by(Sort.Direction.DESC, "createdAt"));
+        } else{
+            query.with(Sort.by(Sort.Direction.ASC, "createdAt"));
         }
 
         return mongoTemplate.find(query, Order.class);

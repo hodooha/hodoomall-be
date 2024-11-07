@@ -37,6 +37,6 @@ public class Product {
     private Map<String, Integer> stock;
 
     @NotBlank
-    private String status = "active";
+    private String status;
 
 }

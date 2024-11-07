@@ -18,7 +18,7 @@ public class ProductDTO {
     private String description;
     private int price;
     private Map<String, Integer> stock;
-    private String status = "active";
+    private String status = "disactive";
 
     public Product toEntity(){
         Product product = new Product();

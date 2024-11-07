@@ -4,12 +4,14 @@ import com.hodoo.hodoomall.coupon.model.dao.CouponRepository;
 import com.hodoo.hodoomall.coupon.model.dto.Coupon;
 import com.hodoo.hodoomall.coupon.model.dto.CouponDTO;
 import com.hodoo.hodoomall.coupon.model.dto.QueryDTO;
+import com.hodoo.hodoomall.userCoupon.model.dao.UserCouponRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,8 @@ import java.util.List;
 public class CouponServiceImpl implements CouponService {
 
     private final CouponRepository couponRepository;
+    private final UserCouponRepository userCouponRepository;
+//    private final UserCouponService userCouponService;
     private final RedisTemplate<String,Integer> redisTemplate;
 
 
@@ -98,12 +102,6 @@ public class CouponServiceImpl implements CouponService {
 
     }
 
-
-
-
-
-
-
     @Override
     public void createCoupon(CouponDTO couponDTO) throws Exception {
 
@@ -113,8 +111,10 @@ public class CouponServiceImpl implements CouponService {
             throw new Exception("할인금액은 0원보다 커야합니다.");
 
         if (couponDTO.getDuration() < 0) throw new Exception("유효 기간은 1일 이상이어야 합니다.");
-        Coupon coupon = couponDTO.toEntity();
-        couponRepository.save(coupon);
+        Coupon coupon = couponRepository.save(couponDTO.toEntity());
+
+        String redisKey = "coupon:"+coupon.getId()+":quantity";
+        redisTemplate.opsForValue().set(redisKey, coupon.getTotalQty());
 
     }
 
@@ -138,13 +138,15 @@ public class CouponServiceImpl implements CouponService {
         return couponRepository.getTotalCouponCount(queryDTO);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteCoupon(String id) throws Exception {
 
-        Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new Exception("쿠폰이 존재하지 않습니다."));
+        couponRepository.deleteById(id);
+        userCouponRepository.deleteByCouponId(id);
 
-        coupon.setDeleted(true);
-        couponRepository.save(coupon);
+        String redisKey = "coupon:" + id + ":quantity";
+        redisTemplate.delete(redisKey);
 
     }
 

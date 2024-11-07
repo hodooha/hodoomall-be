@@ -30,10 +30,7 @@ public class Coupon {
     private String image;
 
     @NotBlank
-    private String status = "active";
-
-    @NotBlank
-    private boolean isDeleted = false;
+    private String status;
 
 
 }

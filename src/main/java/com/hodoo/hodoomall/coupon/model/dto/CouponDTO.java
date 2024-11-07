@@ -14,7 +14,7 @@ public class CouponDTO {
     private String type;
     private int dcAmount;
     private int minCost;
-    private String status;
+    private String status = "disactive";
     private int duration;
     private String image;
 

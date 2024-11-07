@@ -22,4 +22,5 @@ public interface UserCouponService {
     void createUserCoupon2(UserCouponDTO userCouponDTO) throws Exception;
 
     void verifyUserCoupon(OrderDTO data) throws Exception;
+
 }

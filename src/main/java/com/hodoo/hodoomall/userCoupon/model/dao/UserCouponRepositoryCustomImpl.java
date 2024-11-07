@@ -64,4 +64,5 @@ public class UserCouponRepositoryCustomImpl implements UserCouponRepositoryCusto
 
         return mongoTemplate.findAndModify(query, update, UserCoupon.class);
     }
+
 }

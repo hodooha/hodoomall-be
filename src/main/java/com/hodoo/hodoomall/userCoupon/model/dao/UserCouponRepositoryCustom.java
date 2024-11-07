@@ -9,5 +9,4 @@ public interface UserCouponRepositoryCustom {
     List<UserCoupon> findByQuery(QueryDTO queryDTO);
 
     UserCoupon useUserCoupon(String userCouponId);
-
 }
