@@ -29,31 +29,25 @@ public class OrderServiceImpl implements OrderService {
     private final UserService userService;
     private final UserCouponService userCouponService;
 
-
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Order createOrder(User user, OrderDTO data) throws Exception {
-
         if (data.getUserCouponId() != null) {
             userCouponService.verifyUserCoupon(data);
         }
 
         Order order = new Order();
-
         List<OrderDTO.OrderItemDTO> items = data.getItems();
         List<String> insufficientStockItems = new ArrayList<>();
 
         for (OrderDTO.OrderItemDTO i : items) {
-
             StockCheckResultDTO result = productService.checkAndUpdateStock(i);
-
             if (!result.isVerify()) {
                 insufficientStockItems.add(result.getMessage());
             }
         }
 
         if (!insufficientStockItems.isEmpty()) throw new Exception(insufficientStockItems.toString());
-
         if (data.getUserCouponId() != null) {
             userCouponService.useUserCoupon(data.getUserCouponId());
         }
@@ -64,11 +58,9 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalPrice(data.getTotalPrice());
         order.setUserId(new ObjectId(user.getId()));
         order.setOrderNum(RandomString.generateRandomMixStr(11, false));
-
         cartService.emptyCartItem(user);
 
         return orderRepository.save(order);
-
     }
 
     @Override
@@ -83,7 +75,6 @@ public class OrderServiceImpl implements OrderService {
             for (OrderDTO.OrderItemDTO i : orderDTO.getItems()) {
                 i.setProduct(productService.getProductDetail(i.getProductId().toString()));
             }
-
             orderDTO.setUser(userService.findById(o.getUserId().toString()));
             orderList.add(orderDTO);
         }
@@ -100,7 +91,6 @@ public class OrderServiceImpl implements OrderService {
     public void updateOrder(QueryDTO queryDTO) throws Exception {
         Order updatedOrder = orderRepository.updateOrder(queryDTO);
         if (updatedOrder == null) throw new Exception("주문이 존재하지 않습니다.");
-
     }
 
     @Override

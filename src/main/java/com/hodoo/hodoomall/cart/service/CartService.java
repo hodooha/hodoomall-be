@@ -1,6 +1,5 @@
 package com.hodoo.hodoomall.cart.service;
 
-import com.hodoo.hodoomall.cart.model.dto.Cart;
 import com.hodoo.hodoomall.cart.model.dto.CartDTO;
 import com.hodoo.hodoomall.user.model.dto.User;
 
@@ -11,11 +10,11 @@ public interface CartService {
 
     int getCartQty(User user) throws Exception;
 
-    void addItemToCart(User user, Cart.CartItem cartItem) throws Exception;
+    void addItemToCart(User user, CartDTO.CartItemDTO cartItemDTO) throws Exception;
 
-    void updateQty(User user, Cart.CartItem cartItem) throws Exception;
+    void updateQty(User user, CartDTO.CartItemDTO cartItemDTO) throws Exception;
 
-    void deleteCartItem(User user, String id) throws Exception;
+    void deleteCartItem(User user, CartDTO.CartItemDTO cartItemDTO) throws Exception;
 
     void emptyCartItem(User user) throws Exception;
 }

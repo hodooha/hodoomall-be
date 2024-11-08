@@ -22,17 +22,16 @@ public class AdminProductController {
 
         try {
             productService.createProduct(productDTO);
-
             return ResponseEntity.ok().body(Map.of("status", "success"));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
         }
+
     }
 
     @GetMapping
     public ResponseEntity<?> getAllProductList(@ModelAttribute QueryDTO queryDTO){
-        System.out.println(queryDTO);
 
         try{
             queryDTO.setStatus(null);
@@ -45,12 +44,12 @@ public class AdminProductController {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
         }
+
     }
 
     @PutMapping()
     public ResponseEntity<?> updateProduct(@RequestBody ProductDTO productDTO){
 
-        String id = productDTO.getId();
         try {
             productService.updateProduct(productDTO);
             return ResponseEntity.ok().body(Map.of("status", "success"));
@@ -58,6 +57,7 @@ public class AdminProductController {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
         }
+
     }
 
     @DeleteMapping("{id}")
@@ -70,5 +70,6 @@ public class AdminProductController {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
         }
+
     }
 }

@@ -22,6 +22,7 @@ public class ProductDTO {
 
     public Product toEntity(){
         Product product = new Product();
+        product.setId(this.id);
         product.setSku(this.sku);
         product.setImage(this.image);
         product.setCategory(this.category);

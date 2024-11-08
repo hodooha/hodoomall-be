@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import java.util.List;
 
 public interface CouponService {
+
     void createCoupon(CouponDTO couponDTO) throws Exception;
 
     List<CouponDTO> getCouponList(QueryDTO queryDTO) throws Exception;
@@ -18,10 +19,6 @@ public interface CouponService {
     CouponDTO getCouponDetail(String id) throws Exception;
 
     void minusCouponQty(ObjectId couponId) throws Exception;
-
-    void minusCouponQty0(ObjectId couponId) throws Exception;
-
-    boolean checkCouponQty(ObjectId couponId) throws Exception;
 
     void editCoupon(CouponDTO couponDTO) throws Exception;
 }

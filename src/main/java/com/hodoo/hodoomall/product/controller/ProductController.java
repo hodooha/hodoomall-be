@@ -19,7 +19,6 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<?> getProductList(@ModelAttribute QueryDTO queryDTO){
-        System.out.println(queryDTO);
 
         try{
             List<ProductDTO> productList = productService.getProductList(queryDTO);
@@ -31,6 +30,7 @@ public class ProductController {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
         }
+
     }
 
     @GetMapping("{id}")
@@ -45,7 +45,5 @@ public class ProductController {
         }
 
     }
-
-
 
 }

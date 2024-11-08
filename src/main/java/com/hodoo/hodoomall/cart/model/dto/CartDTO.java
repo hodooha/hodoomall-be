@@ -38,14 +38,20 @@ public class CartDTO {
     @NoArgsConstructor
     public static class CartItemDTO {
 
-        private ProductDTO productId;
+        private ProductDTO product;
         private String size;
         private int qty = 1;
+        private String productId;
+
+        public CartItemDTO(ProductDTO productDTO, String size, int qty){
+            this.product = productDTO;
+            this.size = size;
+            this.qty = qty;
+            this.productId = productDTO.getId();
+        }
 
         public Cart.CartItem toEntity() {
-            return new Cart.CartItem(new ObjectId(productId
-                    .getId()), this.size, this.qty);
-
+            return new Cart.CartItem(new ObjectId(productId), this.size, this.qty);
         }
     }
 

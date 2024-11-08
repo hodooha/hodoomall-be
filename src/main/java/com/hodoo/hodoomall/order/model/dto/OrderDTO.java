@@ -46,14 +46,11 @@ public class OrderDTO {
         this.orderNum = order.getOrderNum();
         this.createdAt = order.getCreatedAt();
         this.updatedAt = order.getUpdatedAt();
-
         List<OrderItemDTO> items = new ArrayList<>();
         for(Order.OrderItem i : order.getItems()){
             items.add(new OrderItemDTO(i));
         }
-
         this.items = items;
-
     }
 
     public List<Order.OrderItem> itemsToEntity(){

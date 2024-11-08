@@ -18,8 +18,6 @@ public class AdminCouponController {
     @PostMapping()
     public ResponseEntity<?> createCoupon(@RequestBody CouponDTO couponDTO){
 
-        System.out.println(couponDTO);
-
         try {
             couponService.createCoupon(couponDTO);
             return ResponseEntity.ok().body(Map.of("status", "success"));
@@ -41,15 +39,10 @@ public class AdminCouponController {
             return ResponseEntity.badRequest().body(Map.of("status", "error", "error", e.getMessage()));
         }
 
-
     }
-
-
 
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteCoupon(@PathVariable("id") String id){
-
-        System.out.println(id);
 
         try {
             couponService.deleteCoupon(id);

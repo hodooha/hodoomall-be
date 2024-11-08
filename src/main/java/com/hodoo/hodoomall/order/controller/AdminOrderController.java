@@ -25,25 +25,20 @@ public class AdminOrderController {
                 long totalOrders = orderService.getTotalOrderCount(queryDTO);
                 int totalPageNum = (int) Math.ceil((double) totalOrders/queryDTO.getPageSize());
 
-                System.out.println(orderList);
                 return ResponseEntity.ok().body(Map.of("status", "success", "orderList", orderList, "totalPageNum", totalPageNum));
-
             } catch (Exception e) {
                 e.printStackTrace();
                 return ResponseEntity.badRequest().body(Map.of("status", "fal", "error", e.getMessage()));
             }
-
 
         }
 
     @PutMapping()
     public ResponseEntity<?> updateOrder(@RequestBody QueryDTO queryDTO){
 
-        System.out.println(queryDTO);
         try{
             orderService.updateOrder(queryDTO);
             return ResponseEntity.ok().body(Map.of("status", "success"));
-
         }
         catch(Exception e){
             e.printStackTrace();

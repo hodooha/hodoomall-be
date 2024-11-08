@@ -22,14 +22,13 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping()
-    public ResponseEntity<?> createOrder(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody OrderDTO data) {
-
-        System.out.println(data);
+    public ResponseEntity<?> createOrder(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody OrderDTO orderDTO) {
 
         try {
             User user = customUserDetails.getUser();
-            Order completedOrder = orderService.createOrder(user, data);
+            Order completedOrder = orderService.createOrder(user, orderDTO);
             String orderNum = completedOrder.getOrderNum();
+
             return ResponseEntity.ok().body(Map.of("status", "success", "orderNum", orderNum));
         } catch (Exception e) {
             e.printStackTrace();
@@ -40,23 +39,19 @@ public class OrderController {
 
     @GetMapping()
     public ResponseEntity<?> getOrder(@AuthenticationPrincipal CustomUserDetails customUserDetails, @ModelAttribute QueryDTO queryDTO) {
-
         try {
             User user = customUserDetails.getUser();
             queryDTO.setUser(user);
+
             List<OrderDTO> orderList = orderService.getOrder(queryDTO);
             long totalOrders = orderService.getTotalOrderCount(queryDTO);
             int totalPageNum = (int) Math.ceil((double) totalOrders / queryDTO.getPageSize());
 
-            System.out.println(orderList);
             return ResponseEntity.ok().body(Map.of("status", "success", "orderList", orderList, "totalPageNum", totalPageNum));
-
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
         }
-
-
     }
 
     @DeleteMapping("{id}")
@@ -66,14 +61,14 @@ public class OrderController {
             QueryDTO queryDTO = new QueryDTO();
             queryDTO.setId(id);
             queryDTO.setUser(customUserDetails.getUser());
-            System.out.println(queryDTO);
-            orderService.cancelOrder(queryDTO);
-            return ResponseEntity.ok().body(Map.of("status", "success"));
 
+            orderService.cancelOrder(queryDTO);
+
+            return ResponseEntity.ok().body(Map.of("status", "success"));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("status", "fail", "error", e.getMessage()));
         }
-    }
 
+    }
 
 }

@@ -5,7 +5,6 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.hodoo.hodoomall.auth.util.JwtTokenProvider;
-import com.hodoo.hodoomall.user.model.dao.UserRepository;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import com.hodoo.hodoomall.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,6 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService{
 
-    private final UserRepository userRepository;
     private final UserService userService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -29,7 +27,6 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public UserDTO loginWithEmail(UserDTO userDTO) throws Exception {
-
         UserDTO loginUser = userService.findByEmail(userDTO.getEmail());
 
         if(loginUser == null){
@@ -52,17 +49,16 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public UserDTO loginWithGoogle(String token) throws Exception {
-
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                 new NetHttpTransport(), GsonFactory.getDefaultInstance())
                 .setAudience(Collections.singletonList(GOOGLE_CLIENT_ID))
                 .build();
-
         GoogleIdToken idToken = verifier.verify(token);
-        System.out.println(idToken);
+
         if(idToken == null){
             throw new Exception("Invalid Google token");
         }
+
         GoogleIdToken.Payload payload = idToken.getPayload();
         String email = payload.getEmail();
         String name = (String) payload.get("name");

@@ -13,8 +13,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,34 +22,30 @@ public class CouponServiceImpl implements CouponService {
 
     private final CouponRepository couponRepository;
     private final UserCouponRepository userCouponRepository;
-//    private final UserCouponService userCouponService;
     private final RedisTemplate<String,Integer> redisTemplate;
 
 
     static final String DC_RATE = "dcRate";
     static final String DC_PRICE = "dcPrice";
 
-    // 캐싱O
+
     @PostConstruct
-    public void initializeCache() {
+    public void initializeCache(){
         initializeCouponCache();
     }
 
-    public void initializeCouponCache() {
+    public void initializeCouponCache(){
         List<Coupon> coupons = couponRepository.findAll();
 
         for (Coupon coupon : coupons) {
             String redisKey = "coupon:" + coupon.getId() + ":quantity";
-
-            // Redis 캐시에 초기 수량을 설정
             redisTemplate.opsForValue().set(redisKey, coupon.getTotalQty());
         }
     }
-    // 캐싱O
+
     @Override
     public void minusCouponQty(ObjectId couponId) throws Exception {
 
-        // 쿠폰 수량이 0인지 우선 체크하여 빠르게 반환
         String redisKey = "coupon:" + couponId.toString() + ":quantity";
         Integer cachedQty = redisTemplate.opsForValue().get(redisKey);
 
@@ -65,9 +61,10 @@ public class CouponServiceImpl implements CouponService {
         }
 
     }
-    // 캐싱O
+
     @Scheduled(fixedRate = 30000)
     public void syncCouponQuantity() {
+
         List<Coupon> coupons = couponRepository.findAll();
 
         for (Coupon coupon : coupons) {
@@ -79,27 +76,6 @@ public class CouponServiceImpl implements CouponService {
                 couponRepository.save(coupon);
             }
         }
-    }
-
-    // 캐싱X, 메시지큐X
-    @Override
-    public void minusCouponQty0(ObjectId couponId) throws Exception {
-
-        Coupon coupon = couponRepository.minusCouponQty(couponId);
-
-        if(coupon == null){
-            throw new Exception("쿠폰이 모두 소진되었습니다.");
-        }
-
-    }
-
-    @Override
-    public boolean checkCouponQty(ObjectId couponId) throws Exception {
-
-        Coupon coupon = couponRepository.findById(couponId.toString()).orElseThrow(() -> new Exception("쿠폰이 존재하지 않습니다."));
-
-        return coupon.getTotalQty() > 0;
-
     }
 
     @Override
@@ -120,21 +96,12 @@ public class CouponServiceImpl implements CouponService {
 
     @Override
     public List<CouponDTO> getCouponList(QueryDTO queryDTO) throws Exception {
-
         List<Coupon> couponList = couponRepository.findByQuery(queryDTO);
-        List<CouponDTO> couponDTOList = new ArrayList<>();
-
-        for (Coupon c : couponList) {
-            CouponDTO couponDTO = new CouponDTO(c);
-            couponDTOList.add(couponDTO);
-        }
-
-        return couponDTOList;
+        return couponList.stream().map(coupon -> new CouponDTO(coupon)).collect(Collectors.toList());
     }
 
     @Override
     public long getTotalCouponCount(QueryDTO queryDTO) throws Exception {
-
         return couponRepository.getTotalCouponCount(queryDTO);
     }
 
@@ -147,20 +114,13 @@ public class CouponServiceImpl implements CouponService {
 
         String redisKey = "coupon:" + id + ":quantity";
         redisTemplate.delete(redisKey);
-
     }
 
     @Override
     public CouponDTO getCouponDetail(String id) throws Exception {
-
         Coupon coupon = couponRepository.findById(id).orElseThrow(() -> new Exception("쿠폰이 존재하지 않습니다."));
-
         return new CouponDTO(coupon);
     }
-
-    
-
-
 
     @Override
     public void editCoupon(CouponDTO couponDTO) throws Exception {
@@ -177,8 +137,6 @@ public class CouponServiceImpl implements CouponService {
         Coupon updatedCoupon = couponDTO.toEntity();
         updatedCoupon.setId(couponDTO.getId());
         couponRepository.save(updatedCoupon);
-
-
     }
 
 

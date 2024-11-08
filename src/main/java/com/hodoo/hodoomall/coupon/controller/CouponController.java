@@ -30,12 +30,12 @@ public class CouponController {
 
     @GetMapping()
     public ResponseEntity<?> getCouponList(@ModelAttribute QueryDTO queryDTO){
-        System.out.println(queryDTO);
 
         try {
             List<CouponDTO> couponList = couponService.getCouponList(queryDTO);
             long totalCoupons = couponService.getTotalCouponCount(queryDTO);
             int totalPageNum = (int) Math.ceil((double) totalCoupons/queryDTO.getPageSize());
+
             return ResponseEntity.ok().body(Map.of("status", "success", "couponList", couponList, "totalPageNum", totalPageNum));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("status", "success", "error", e.getMessage()));

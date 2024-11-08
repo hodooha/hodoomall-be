@@ -14,46 +14,48 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Repository
-public class ProductRepositoryImpl implements ProductRepositoryCustom{
+public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     private final MongoTemplate mongoTemplate;
 
     @Override
     public List<Product> findByQuery(QueryDTO queryDTO) {
+
         Query query = new Query();
 
-        if(queryDTO.getName() != null && !queryDTO.getName().isEmpty()){
+        if (queryDTO.getName() != null && !queryDTO.getName().isEmpty()) {
             query.addCriteria(Criteria.where("name").regex(queryDTO.getName(), "i"));
         }
 
-        if(queryDTO.getCategory() != null && !queryDTO.getCategory().isEmpty()){
+        if (queryDTO.getCategory() != null && !queryDTO.getCategory().isEmpty()) {
             query.addCriteria(Criteria.where("category").regex(queryDTO.getCategory(), "i"));
         }
 
-        if(queryDTO.getStatus() != null && !queryDTO.getStatus().isEmpty()){
+        if (queryDTO.getStatus() != null && !queryDTO.getStatus().isEmpty()) {
             query.addCriteria(Criteria.where("status").is(queryDTO.getStatus()));
         }
 
         int page = queryDTO.getPage();
         int pageSize = queryDTO.getPageSize();
-        query.skip((long) (page -1) * pageSize).limit(pageSize);
+        query.skip((long) (page - 1) * pageSize).limit(pageSize);
 
         return mongoTemplate.find(query, Product.class);
     }
 
     @Override
     public long getTotalProductCount(QueryDTO queryDTO) {
+
         Query query = new Query();
 
-        if(queryDTO.getName() != null && !queryDTO.getName().isEmpty()){
+        if (queryDTO.getName() != null && !queryDTO.getName().isEmpty()) {
             query.addCriteria(Criteria.where("name").regex(queryDTO.getName(), "i"));
         }
 
-        if(queryDTO.getCategory() != null && !queryDTO.getCategory().isEmpty()){
+        if (queryDTO.getCategory() != null && !queryDTO.getCategory().isEmpty()) {
             query.addCriteria(Criteria.where("category").regex(queryDTO.getCategory(), "i"));
         }
 
-        if(queryDTO.getStatus() != null && !queryDTO.getStatus().isEmpty()){
+        if (queryDTO.getStatus() != null && !queryDTO.getStatus().isEmpty()) {
             query.addCriteria(Criteria.where("status").is("active"));
         }
 
@@ -61,14 +63,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom{
     }
 
     @Override
-    public Product updateStock(OrderDTO.OrderItemDTO orderItemDTO){
+    public Product updateStock(OrderDTO.OrderItemDTO orderItemDTO) {
+
         Query query = new Query();
         Update update = new Update();
 
         query.addCriteria(Criteria.where("_id").is(orderItemDTO.getProductId().toString()));
-        query.addCriteria(Criteria.where("stock." +orderItemDTO.getSize()).gte(orderItemDTO.getQty()));
+        query.addCriteria(Criteria.where("stock." + orderItemDTO.getSize()).gte(orderItemDTO.getQty()));
 
-        update.inc("stock."+orderItemDTO.getSize(), -orderItemDTO.getQty());
+        update.inc("stock." + orderItemDTO.getSize(), -orderItemDTO.getQty());
 
         return mongoTemplate.findAndModify(query, update, Product.class);
 

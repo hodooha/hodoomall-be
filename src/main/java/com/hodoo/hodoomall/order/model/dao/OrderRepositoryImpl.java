@@ -59,6 +59,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
 
     @Override
     public long getTotalOrderCount(QueryDTO queryDTO) {
+
         Query query = new Query();
 
         if(queryDTO.getOrderNum() != null && !queryDTO.getOrderNum().isEmpty()){

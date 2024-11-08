@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @Document(collection = "carts")
 public class Cart {
 
@@ -20,10 +21,15 @@ public class Cart {
 
     private List<CartItem> items;
 
+    public Cart(ObjectId userId, List<CartItem> items) {
+        this.userId = userId;
+        this.items = items;
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class CartItem{
+    public static class CartItem {
 
         private ObjectId productId;
         private String size;

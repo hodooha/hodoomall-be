@@ -3,11 +3,9 @@ package com.hodoo.hodoomall.coupon.model.dao;
 import com.hodoo.hodoomall.coupon.model.dto.Coupon;
 import com.hodoo.hodoomall.coupon.model.dto.QueryDTO;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -36,6 +34,7 @@ public class CouponRepositoryImpl implements CouponRepositoryCustom {
 
     @Override
     public long getTotalCouponCount(QueryDTO queryDTO) {
+
         Query query = new Query();
 
         if(queryDTO.getName() != null && !queryDTO.getName().isEmpty()){
@@ -45,14 +44,4 @@ public class CouponRepositoryImpl implements CouponRepositoryCustom {
         return mongoTemplate.count(query, Coupon.class);
     }
 
-    @Override
-    public Coupon minusCouponQty(ObjectId couponId) {
-
-        Query query = new Query();
-
-        query.addCriteria(Criteria.where("_id").is(couponId.toString()).and("totalQty").gt(0));
-        Update update = new Update().inc("totalQty", -1);
-
-        return mongoTemplate.findAndModify(query, update, Coupon.class);
-    }
 }
