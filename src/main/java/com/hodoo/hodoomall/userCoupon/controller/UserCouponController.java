@@ -26,13 +26,6 @@ public class UserCouponController {
         try {
             User user = customUserDetails.getUser();
             userCouponDTO.setUserId(new ObjectId(user.getId()));
-            // 캐싱X, 메시지큐X
-//            userCouponService.createUserCoupon0(userCouponDTO);
-            // 캐싱O, 메시지큐X
-//            userCouponService.createUserCoupon(userCouponDTO);
-            // 캐싱X, 메시지큐O
-//            userCouponService.createUserCoupon2(userCouponDTO);
-            // 캐싱O, 메시지큐O
             userCouponService.checkUserCoupon(userCouponDTO);
             return ResponseEntity.ok().body(Map.of("status", "success"));
         } catch (Exception e) {

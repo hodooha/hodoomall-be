@@ -16,10 +16,7 @@ import org.bson.types.ObjectId;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,43 +36,6 @@ public class UserCouponServiceImpl implements UserCouponService {
     @Value("${rabbitmq.coupon.routing.key}")
     private String couponRoutingKey;
 
-    // 캐싱X, 메시지큐X
-    @Retryable(
-            // 트랜잭션 충돌 발생 시 재시도
-            maxAttempts = 30,
-            backoff = @Backoff(delay = 150, multiplier = 1.1) // 150ms부터 시작, 1.1배씩 증가
-    )
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void createUserCoupon0(UserCouponDTO userCouponDTO) throws Exception {
-
-        if (!userCouponRepository.findAllByCouponIdAndUserId(userCouponDTO.getCouponId(), userCouponDTO.getUserId()).isEmpty())
-            throw new Exception("이미 다운받은 쿠폰입니다.");
-
-        couponService.minusCouponQty0(userCouponDTO.getCouponId());
-
-        UserCoupon userCoupon = userCouponDTO.toEntity();
-        userCouponRepository.save(userCoupon);
-
-    }
-
-    // 캐싱X, 메시지큐O
-    @Retryable(
-            // 트랜잭션 충돌 발생 시 재시도
-            maxAttempts = 30,
-            backoff = @Backoff(delay = 150, multiplier = 1.1) // 150ms부터 시작, 1.1배씩 증가
-    )
-    @Override
-    public void createUserCoupon2(UserCouponDTO userCouponDTO) throws Exception {
-
-        if (!userCouponRepository.findAllByCouponIdAndUserId(userCouponDTO.getCouponId(), userCouponDTO.getUserId()).isEmpty())
-            throw new Exception("이미 다운받은 쿠폰입니다.");
-
-        couponService.minusCouponQty0(userCouponDTO.getCouponId());
-
-        rabbitTemplate.convertAndSend(exchangeName, couponRoutingKey, new UserCouponRequestDTO(userCouponDTO.getCouponId().toString(), userCouponDTO.getUserId().toString(), userCouponDTO.getDuration()));
-
-    }
 
     @Override
     public void verifyUserCoupon(OrderDTO data) throws Exception {
@@ -83,18 +43,6 @@ public class UserCouponServiceImpl implements UserCouponService {
             throw new Exception("쿠폰 사용 조건을 충족하지 않습니다.");
     }
 
-    // 캐싱O, 메시지큐X
-    @Override
-    public void createUserCoupon(UserCouponDTO userCouponDTO) throws Exception {
-
-        if (!userCouponRepository.findAllByCouponIdAndUserId(userCouponDTO.getCouponId(), userCouponDTO.getUserId()).isEmpty())
-            throw new Exception("이미 받으신 쿠폰입니다.");
-        couponService.minusCouponQty(userCouponDTO.getCouponId());
-        UserCoupon userCoupon = userCouponDTO.toEntity();
-        userCouponRepository.save(userCoupon);
-    }
-
-    // 캐싱O, 메시지큐O
     @Override
     public void checkUserCoupon(UserCouponDTO userCouponDTO) throws Exception {
         if (!userCouponRepository.findAllByCouponIdAndUserId(userCouponDTO.getCouponId(), userCouponDTO.getUserId()).isEmpty()) {
@@ -105,7 +53,6 @@ public class UserCouponServiceImpl implements UserCouponService {
         rabbitTemplate.convertAndSend(exchangeName, couponRoutingKey, new UserCouponRequestDTO(userCouponDTO.getCouponId().toString(), userCouponDTO.getUserId().toString(), userCouponDTO.getDuration()));
     }
 
-    // 캐싱O, 메시지큐O
     @RabbitListener(queues = "#{@couponQueue}", concurrency = "10-20")
     public void manageUserCouponRequest(UserCouponRequestDTO userCouponRequestDTO) throws Exception {
 
@@ -113,13 +60,12 @@ public class UserCouponServiceImpl implements UserCouponService {
         userCouponDTO.setCouponId(new ObjectId(userCouponRequestDTO.getCouponId()));
         userCouponDTO.setUserId(new ObjectId(userCouponRequestDTO.getUserId()));
         userCouponDTO.setDuration(userCouponRequestDTO.getDuration());
-        createUserCoupon1(userCouponDTO);
+        createUserCoupon(userCouponDTO);
 
     }
 
-    // 캐싱O, 메시지큐O
     @Override
-    public void createUserCoupon1(UserCouponDTO userCouponDTO) throws Exception {
+    public void createUserCoupon(UserCouponDTO userCouponDTO) throws Exception {
 
         UserCoupon userCoupon = userCouponDTO.toEntity();
         userCouponRepository.save(userCoupon);
