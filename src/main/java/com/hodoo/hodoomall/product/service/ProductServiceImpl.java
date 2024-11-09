@@ -33,7 +33,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDTO> getProductList(QueryDTO queryDTO) throws Exception {
         List<Product> data = productRepository.findByQuery(queryDTO);
-        return data.stream().map(product -> new ProductDTO(product)).collect(Collectors.toList());
+        return data.stream().map(ProductDTO::new).collect(Collectors.toList());
     }
 
     @Override

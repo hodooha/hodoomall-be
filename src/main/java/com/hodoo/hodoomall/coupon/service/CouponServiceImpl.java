@@ -69,7 +69,7 @@ public class CouponServiceImpl implements CouponService {
 
         for (Coupon coupon : coupons) {
             String redisKey = "coupon:" + coupon.getId() + ":quantity";
-            Integer cachedQty = (Integer) redisTemplate.opsForValue().get(redisKey);
+            Integer cachedQty = redisTemplate.opsForValue().get(redisKey);
 
             if (cachedQty != null) {
                 coupon.setTotalQty(cachedQty);
@@ -97,7 +97,7 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public List<CouponDTO> getCouponList(QueryDTO queryDTO) throws Exception {
         List<Coupon> couponList = couponRepository.findByQuery(queryDTO);
-        return couponList.stream().map(coupon -> new CouponDTO(coupon)).collect(Collectors.toList());
+        return couponList.stream().map(CouponDTO::new).collect(Collectors.toList());
     }
 
     @Override

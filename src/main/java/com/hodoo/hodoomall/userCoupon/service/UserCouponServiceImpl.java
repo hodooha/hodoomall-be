@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,7 +41,7 @@ public class UserCouponServiceImpl implements UserCouponService {
 
     @Override
     public void verifyUserCoupon(OrderDTO data) throws Exception {
-        if (couponService.getCouponDetail(data.getUserCouponId().toString()).getMinCost() > data.getTotalPrice())
+        if (couponService.getCouponDetail(data.getUserCouponId()).getMinCost() > data.getTotalPrice())
             throw new Exception("쿠폰 사용 조건을 충족하지 않습니다.");
     }
 
@@ -79,13 +81,20 @@ public class UserCouponServiceImpl implements UserCouponService {
         queryDTO.setUsed(false);
         queryDTO.setExpired(false);
         List<UserCoupon> userCouponList = userCouponRepository.findByQuery(queryDTO);
+        System.out.println(userCouponList);
         List<UserCouponDTO> userCouponDTOList = new ArrayList<>();
 
-        for (UserCoupon uc : userCouponList) {
-            UserCouponDTO userCouponDTO = new UserCouponDTO(uc);
-            Coupon coupon = couponRepository.findById(userCouponDTO.getCouponId().toString()).orElseThrow(() -> new Exception("존재하지 않는 쿠폰입니다."));
-            userCouponDTO.setCoupon(new CouponDTO(coupon));
-            userCouponDTOList.add(userCouponDTO);
+        if (userCouponList != null && !userCouponList.isEmpty()) {
+            List<String> couponIdList = userCouponList.stream().map((userCoupon) -> userCoupon.getCouponId().toString()).toList();
+            Map<String, Coupon> couponMap = couponRepository.findAllById(couponIdList).stream().collect(Collectors.toMap(Coupon::getId, coupon -> coupon));
+
+
+            for (UserCoupon uc : userCouponList) {
+                UserCouponDTO userCouponDTO = new UserCouponDTO(uc);
+                Coupon coupon = couponMap.get(uc.getCouponId().toString());
+                userCouponDTO.setCoupon(new CouponDTO(coupon));
+                userCouponDTOList.add(userCouponDTO);
+            }
         }
 
         return userCouponDTOList;
@@ -95,7 +104,6 @@ public class UserCouponServiceImpl implements UserCouponService {
     public void useUserCoupon(String userCouponId) throws Exception {
 
         UserCoupon usedCoupon = userCouponRepository.useUserCoupon(userCouponId);
-
         if (usedCoupon == null) throw new Exception("쿠폰이 존재하지 않거나 사용 조건을 충족하지 않습니다.");
     }
 

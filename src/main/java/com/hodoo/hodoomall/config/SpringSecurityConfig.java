@@ -42,11 +42,7 @@ public class SpringSecurityConfig {
                         .requestMatchers("/api/auth/**", "/api/users/create").permitAll()
                         .requestMatchers("/api/products/**", "/api/coupons/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAnyAuthority("ROLE_ADMIN")
-//                        .requestMatchers(HttpMethod.POST, "/api/products/**").hasAnyAuthority("ROLE_ADMIN")
-//                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAnyAuthority("ROLE_ADMIN")
-//                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyAuthority("ROLE_ADMIN")
-//                        .requestMatchers(HttpMethod.PUT, "/api/order/**").hasAnyAuthority("ROLE_ADMIN")
-//                        .requestMatchers(HttpMethod.DELETE, "/api/order/**").hasAnyAuthority("ROLE_ADMIN")
+
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(withDefaults())

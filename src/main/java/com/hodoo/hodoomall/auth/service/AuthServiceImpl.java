@@ -5,6 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.hodoo.hodoomall.auth.util.JwtTokenProvider;
+import com.hodoo.hodoomall.user.model.dao.UserRepository;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import com.hodoo.hodoomall.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +17,10 @@ import java.util.Collections;
 
 @Service
 @RequiredArgsConstructor
-public class AuthServiceImpl implements AuthService{
+public class AuthServiceImpl implements AuthService {
 
     private final UserService userService;
+    private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -27,13 +29,10 @@ public class AuthServiceImpl implements AuthService{
 
     @Override
     public UserDTO loginWithEmail(UserDTO userDTO) throws Exception {
-        UserDTO loginUser = userService.findByEmail(userDTO.getEmail());
 
-        if(loginUser == null){
-            throw new Exception("일치하는 이메일 계정이 없습니다.");
-        }
-
-        if(!bCryptPasswordEncoder.matches(userDTO.getPassword(), loginUser.getPassword())){
+        UserDTO loginUser = userService.getUserByEmail(userDTO.getEmail());
+        if (loginUser == null) throw new Exception("계정이 존재하지 않습니다.");
+        if (!bCryptPasswordEncoder.matches(userDTO.getPassword(), loginUser.getPassword())) {
             throw new Exception("비밀번호가 일치하지 않습니다.");
         }
 
@@ -55,7 +54,7 @@ public class AuthServiceImpl implements AuthService{
                 .build();
         GoogleIdToken idToken = verifier.verify(token);
 
-        if(idToken == null){
+        if (idToken == null) {
             throw new Exception("Invalid Google token");
         }
 
@@ -63,18 +62,14 @@ public class AuthServiceImpl implements AuthService{
         String email = payload.getEmail();
         String name = (String) payload.get("name");
 
-        UserDTO existingUser = userService.findByEmail(email);
-        UserDTO loginUser;
+        UserDTO loginUser = userService.getUserByEmail(email);
 
-        if(existingUser != null){
-            loginUser = existingUser;
-        } else{
+        if (loginUser == null) {
             String randomPassword = "" + Math.floor(Math.random() * 100000000);
             loginUser = userService.createUserWithGoogle(email, name, randomPassword);
         }
 
         String jwtToken = jwtTokenProvider.createToken(loginUser.getId(), loginUser.getLevel());
-
         loginUser.setPassword(null);
         loginUser.setToken(jwtToken);
 

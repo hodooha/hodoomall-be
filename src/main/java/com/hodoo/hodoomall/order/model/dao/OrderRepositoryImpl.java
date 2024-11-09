@@ -72,7 +72,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
 
         if(queryDTO.getProductName() != null && !queryDTO.getProductName().isEmpty()){
             Query productQuery = new Query(Criteria.where("name").regex(queryDTO.getProductName(), "i"));
-            List<String> products = mongoTemplate.find(productQuery, Product.class).stream().map(Product::getId).toList();
+            List<ObjectId> products = mongoTemplate.find(productQuery, Product.class).stream().map(product -> new ObjectId(product.getId())).toList();
             query.addCriteria(Criteria.where("items.productId").in(products));
         }
 

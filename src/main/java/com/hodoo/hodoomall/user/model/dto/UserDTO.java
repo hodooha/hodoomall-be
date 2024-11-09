@@ -26,7 +26,18 @@ public class UserDTO {
         this.email = user.getEmail();
         this.name = user.getName();
         this.level = user.getLevel();
+        this.password = user.getPassword();
 
+    }
+
+    public User toEntity(){
+        User user = new User();
+        user.setId(this.id);
+        user.setEmail(this.email);
+        user.setPassword(this.password);
+        user.setName(this.name);
+        user.setLevel(this.level);
+        return user;
     }
 
 }

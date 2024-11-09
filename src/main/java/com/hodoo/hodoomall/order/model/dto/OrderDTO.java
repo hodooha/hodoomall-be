@@ -107,7 +107,7 @@ public class OrderDTO {
         private String id;
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        private ObjectId productId;
+        private String productId;
 
         private ProductDTO product;
         private int price;
@@ -119,11 +119,11 @@ public class OrderDTO {
             this.qty = orderItem.getQty();
             this.price = orderItem.getPrice();
             this.size = orderItem.getSize();
-            this.productId = orderItem.getProductId();
+            this.productId = orderItem.getProductId().toString();
         }
 
         public Order.OrderItem toEntity(){
-            return new Order.OrderItem(this.productId, this.price, this.qty, this.size);
+            return new Order.OrderItem(new ObjectId(this.productId), this.price, this.qty, this.size);
         }
 
     }

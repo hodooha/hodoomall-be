@@ -23,7 +23,7 @@ public class OrderController {
 
     @PostMapping()
     public ResponseEntity<?> createOrder(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestBody OrderDTO orderDTO) {
-
+        System.out.println(orderDTO);
         try {
             User user = customUserDetails.getUser();
             Order completedOrder = orderService.createOrder(user, orderDTO);

@@ -10,7 +10,7 @@ public interface UserService {
 
     UserDTO createUserWithGoogle(String email, String name, String randomPassword) throws Exception;
 
-    UserDTO findByEmail(String email) throws Exception;
+    UserDTO getUserByEmail(String email) throws Exception;
 
     UserDTO findById(String id) throws Exception;
 }

@@ -1,6 +1,5 @@
 package com.hodoo.hodoomall.user.controller;
 
-import com.hodoo.hodoomall.auth.service.AuthService;
 import com.hodoo.hodoomall.user.model.dto.CustomUserDetails;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import com.hodoo.hodoomall.user.service.UserService;
@@ -17,12 +16,10 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-    private final AuthService authService;
 
     @PostMapping("/create")
     public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
 
-        System.out.println(userDTO);
         try {
             userService.createUser(userDTO);
             return ResponseEntity.ok().body(Map.of("status", "success"));

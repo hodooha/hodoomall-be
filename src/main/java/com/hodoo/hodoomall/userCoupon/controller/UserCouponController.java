@@ -27,6 +27,7 @@ public class UserCouponController {
             User user = customUserDetails.getUser();
             userCouponDTO.setUserId(new ObjectId(user.getId()));
             userCouponService.checkUserCoupon(userCouponDTO);
+
             return ResponseEntity.ok().body(Map.of("status", "success"));
         } catch (Exception e) {
             e.printStackTrace();
@@ -37,8 +38,8 @@ public class UserCouponController {
     @GetMapping()
     public ResponseEntity<?> getUserCouponList(@AuthenticationPrincipal CustomUserDetails customUserDetails){
 
-        User user = customUserDetails.getUser();
         try {
+            User user = customUserDetails.getUser();
             List<UserCouponDTO> userCouponList = userCouponService.getUserCouponList(user);
             return ResponseEntity.ok().body(Map.of("status", "success", "userCouponList", userCouponList));
         } catch (Exception e) {

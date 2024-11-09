@@ -17,8 +17,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void createUser(UserDTO userDTO) throws Exception {
 
-        UserDTO existingUser = findByEmail(userDTO.getEmail());
-        if (existingUser != null) {
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
             throw new Exception("계정이 이미 존재합니다.");
         }
 
@@ -35,7 +34,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUser(User user) throws Exception {
-
         return new UserDTO(user);
     }
 
@@ -47,29 +45,18 @@ public class UserServiceImpl implements UserService {
         newUser.setEmail(email);
         newUser.setName(name);
         newUser.setPassword(encodedPassword);
-        userRepository.save(newUser);
 
-        return new UserDTO(newUser);
+        return new UserDTO(userRepository.save(newUser));
     }
 
     @Override
-    public UserDTO findByEmail(String email) throws Exception {
-
-        User user = userRepository.findByEmail(email);
-
-        if (user == null) throw new Exception("유저가 존재하지 않습니다.");
-
-        UserDTO userDTO = new UserDTO(user);
-        userDTO.setPassword(user.getPassword());
-
-        return userDTO;
+    public UserDTO getUserByEmail(String email) throws Exception {
+        return new UserDTO(userRepository.findByEmail(email));
     }
 
     @Override
     public UserDTO findById(String id) throws Exception {
-
         User user = userRepository.findById(id).orElseThrow(() -> new Exception("유저가 존재하지 않습니다."));
-
         return new UserDTO(user);
     }
 

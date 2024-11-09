@@ -9,6 +9,7 @@ import com.hodoo.hodoomall.order.util.RandomString;
 import com.hodoo.hodoomall.product.model.dto.StockCheckResultDTO;
 import com.hodoo.hodoomall.product.service.ProductService;
 import com.hodoo.hodoomall.user.model.dto.User;
+import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import com.hodoo.hodoomall.user.service.UserService;
 import com.hodoo.hodoomall.userCoupon.service.UserCouponService;
 import lombok.RequiredArgsConstructor;
@@ -68,14 +69,21 @@ public class OrderServiceImpl implements OrderService {
     public List<OrderDTO> getOrder(QueryDTO queryDTO) throws Exception {
 
         List<Order> orders = orderRepository.findByQuery(queryDTO);
-
         List<OrderDTO> orderList = new ArrayList<>();
+
+        UserDTO userDTO = queryDTO.getUser() != null ? new UserDTO(queryDTO.getUser()) : null;
+
         for (Order o : orders) {
             OrderDTO orderDTO = new OrderDTO(o);
+
             for (OrderDTO.OrderItemDTO i : orderDTO.getItems()) {
-                i.setProduct(productService.getProductDetail(i.getProductId().toString()));
+                i.setProduct(productService.getProductDetail(i.getProductId()));
             }
-            orderDTO.setUser(userService.findById(o.getUserId().toString()));
+
+            if (userDTO == null) {
+                orderDTO.setUser(userService.findById(o.getUserId().toString()));
+            }
+
             orderList.add(orderDTO);
         }
 
