@@ -6,4 +6,6 @@ public interface AuthService {
     UserDTO loginWithEmail(UserDTO userDTO) throws Exception;
 
     UserDTO loginWithGoogle(String token) throws Exception;
+
+    String refresh(String expiredToken) throws Exception;
 }

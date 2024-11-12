@@ -4,8 +4,9 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import com.hodoo.hodoomall.auth.model.dao.RefreshTokenRepository;
+import com.hodoo.hodoomall.auth.model.dto.RefreshToken;
 import com.hodoo.hodoomall.auth.util.JwtTokenProvider;
-import com.hodoo.hodoomall.user.model.dao.UserRepository;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import com.hodoo.hodoomall.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,9 @@ import java.util.Collections;
 public class AuthServiceImpl implements AuthService {
 
     private final UserService userService;
-    private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${google.client.id}")
     private String GOOGLE_CLIENT_ID;
@@ -37,11 +38,15 @@ public class AuthServiceImpl implements AuthService {
         }
 
         // JWT 토큰 생성
-        String token = jwtTokenProvider.createToken(loginUser.getId(), loginUser.getLevel());
+        String token = jwtTokenProvider.createAccessToken(loginUser.getId(), loginUser.getLevel());
+        String refreshToken = jwtTokenProvider.createRefreshToken();
 
         // UserDTO에 토큰 추가
         loginUser.setToken(token);
         loginUser.setPassword(null);
+
+        // redis에 refreshToken 추가
+        refreshTokenRepository.save(new RefreshToken(loginUser.getId(), refreshToken));
 
         return loginUser;
     }
@@ -69,11 +74,36 @@ public class AuthServiceImpl implements AuthService {
             loginUser = userService.createUserWithGoogle(email, name, randomPassword);
         }
 
-        String jwtToken = jwtTokenProvider.createToken(loginUser.getId(), loginUser.getLevel());
+        String jwtToken = jwtTokenProvider.createAccessToken(loginUser.getId(), loginUser.getLevel());
+        String refreshToken = jwtTokenProvider.createRefreshToken();
         loginUser.setPassword(null);
         loginUser.setToken(jwtToken);
+        refreshTokenRepository.save(new RefreshToken(loginUser.getId(), refreshToken));
 
         return loginUser;
+    }
+
+    @Override
+    public String refresh(String expiredToken) throws Exception {
+
+        if(expiredToken == null || !jwtTokenProvider.validateToken(expiredToken)){
+            throw new Exception("InValid Access Token");
+        }
+
+        String userId = jwtTokenProvider.getUserId(expiredToken);
+        RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId).orElseThrow(() -> new Exception("Refresh Token expired or not found"));
+
+        if(!jwtTokenProvider.validateToken(refreshToken.getRefreshToken())){
+            throw new Exception("InValid Refresh Token");
+        }
+
+        String userLevel = jwtTokenProvider.getRole(expiredToken).equals("ROLE_ADMIN") ? "admin" : "customer";
+        String newAccessToken = jwtTokenProvider.createAccessToken(userId, userLevel);
+        String newRefreshToken = jwtTokenProvider.createRefreshToken();
+
+        refreshTokenRepository.save(new RefreshToken(userId, newRefreshToken));
+
+        return newAccessToken;
     }
 
 

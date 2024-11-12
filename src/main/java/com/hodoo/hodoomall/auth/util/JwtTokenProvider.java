@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.Duration;
 import java.util.Date;
 
 @Component
@@ -16,15 +17,15 @@ public class JwtTokenProvider {
     @Value("${jwt.secret.key}")
     private String secretKey;
 
-    @Value("${jwt.expiration}")
-    private long accessTokenExpTime;
+    private final long accessTokenExpTime = Duration.ofMinutes(30).toMillis();
+    private final long refreshTokenValidTime = Duration.ofDays(14).toMillis();
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(this.secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createToken(String userId, String level) {
+    public String createAccessToken(String userId, String level) {
         Claims claims = Jwts.claims().setSubject(userId);
         String role;
         if(level.equals("admin")){
@@ -38,6 +39,17 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(this.getSigningKey())
+                .compact();
+    }
+
+    public String createRefreshToken(){
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + refreshTokenValidTime);
+
+        return Jwts.builder()
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(this.getSigningKey())
