@@ -6,6 +6,7 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.hodoo.hodoomall.auth.model.dao.RefreshTokenRepository;
 import com.hodoo.hodoomall.auth.model.dto.RefreshToken;
+import com.hodoo.hodoomall.auth.model.dto.TokenDTO;
 import com.hodoo.hodoomall.auth.util.JwtTokenProvider;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
 import com.hodoo.hodoomall.user.service.UserService;
@@ -39,14 +40,12 @@ public class AuthServiceImpl implements AuthService {
 
         // JWT 토큰 생성
         String token = jwtTokenProvider.createAccessToken(loginUser.getId(), loginUser.getLevel());
-        String refreshToken = jwtTokenProvider.createRefreshToken();
+        String refreshToken = jwtTokenProvider.createRefreshToken(loginUser.getId());
 
         // UserDTO에 토큰 추가
         loginUser.setToken(token);
         loginUser.setPassword(null);
-
-        // redis에 refreshToken 추가
-        refreshTokenRepository.save(new RefreshToken(loginUser.getId(), refreshToken));
+        loginUser.setRefreshToken(refreshToken);
 
         return loginUser;
     }
@@ -75,35 +74,33 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String jwtToken = jwtTokenProvider.createAccessToken(loginUser.getId(), loginUser.getLevel());
-        String refreshToken = jwtTokenProvider.createRefreshToken();
+        String refreshToken = jwtTokenProvider.createRefreshToken(loginUser.getId());
         loginUser.setPassword(null);
         loginUser.setToken(jwtToken);
-        refreshTokenRepository.save(new RefreshToken(loginUser.getId(), refreshToken));
+        loginUser.setRefreshToken(refreshToken);
 
         return loginUser;
     }
 
     @Override
-    public String refresh(String expiredToken) throws Exception {
+    public TokenDTO refresh(TokenDTO tokens) throws Exception {
 
-        if(expiredToken == null || !jwtTokenProvider.validateToken(expiredToken)){
-            throw new Exception("InValid Access Token");
+        if (tokens.getAccessToken().isEmpty() || tokens.getRefreshToken().isEmpty()) {
+            throw new Exception("Tokens not found");
         }
 
-        String userId = jwtTokenProvider.getUserId(expiredToken);
+        String userId = jwtTokenProvider.getUserId(tokens.getAccessToken());
         RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId).orElseThrow(() -> new Exception("Refresh Token expired or not found"));
 
-        if(!jwtTokenProvider.validateToken(refreshToken.getRefreshToken())){
+        if (!refreshToken.getRefreshToken().equals(tokens.getRefreshToken()) || !jwtTokenProvider.validateToken(refreshToken.getRefreshToken())) {
             throw new Exception("InValid Refresh Token");
         }
 
-        String userLevel = jwtTokenProvider.getRole(expiredToken).equals("ROLE_ADMIN") ? "admin" : "customer";
+        String userLevel = jwtTokenProvider.getRole(tokens.getAccessToken()).equals("ROLE_ADMIN") ? "admin" : "customer";
         String newAccessToken = jwtTokenProvider.createAccessToken(userId, userLevel);
-        String newRefreshToken = jwtTokenProvider.createRefreshToken();
+        String newRefreshToken = jwtTokenProvider.createRefreshToken(userId);
 
-        refreshTokenRepository.save(new RefreshToken(userId, newRefreshToken));
-
-        return newAccessToken;
+        return new TokenDTO(newAccessToken, newRefreshToken);
     }
 
 

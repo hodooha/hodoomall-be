@@ -20,6 +20,8 @@ public class UserDTO {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String token;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String refreshToken;
 
     public UserDTO(User user){
         this.id = user.getId();

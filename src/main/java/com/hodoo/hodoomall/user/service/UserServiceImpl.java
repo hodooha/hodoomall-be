@@ -1,5 +1,6 @@
 package com.hodoo.hodoomall.user.service;
 
+import com.hodoo.hodoomall.auth.model.dao.RefreshTokenRepository;
 import com.hodoo.hodoomall.user.model.dao.UserRepository;
 import com.hodoo.hodoomall.user.model.dto.User;
 import com.hodoo.hodoomall.user.model.dto.UserDTO;
@@ -13,6 +14,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     @Override
     public void createUser(UserDTO userDTO) throws Exception {
@@ -58,6 +60,11 @@ public class UserServiceImpl implements UserService {
     public UserDTO findById(String id) throws Exception {
         User user = userRepository.findById(id).orElseThrow(() -> new Exception("유저가 존재하지 않습니다."));
         return new UserDTO(user);
+    }
+
+    @Override
+    public void logout(User user) throws Exception {
+        refreshTokenRepository.deleteById(user.getId());
     }
 
 

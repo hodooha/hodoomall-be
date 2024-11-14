@@ -26,7 +26,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
 
-        if(requestURI.equals("/api/auth/refresh")){
+        if (requestURI.equals("/api/auth/refresh")) {
             filterChain.doFilter(request, response); // 다음 필터로 넘기기
             return;
         }
@@ -34,13 +34,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         // Authorization 헤더에서 토큰 추출
         String tokenString = request.getHeader("Authorization");
 
-        if(tokenString != null && tokenString.startsWith("Bearer ")){
+        if (tokenString != null && tokenString.startsWith("Bearer ")) {
             String token = tokenString.replace("Bearer ", "");
+            System.out.println("token" +token);
 
+            if (token.equals("null") || token.isEmpty()) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             // 토큰 유효성 검사
-            if(!jwtTokenProvider.validateToken(token)){
+            if (!jwtTokenProvider.validateToken(token)) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Access Token is expired or invalid");
+                return;
             }
 
             try {
@@ -54,7 +60,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
                 //현재 Request의 Security Context에 접근권한 설정
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            } catch (Exception e){
+            } catch (Exception e) {
                 System.out.println("인증 오류 : " + e.getMessage());
             }
 

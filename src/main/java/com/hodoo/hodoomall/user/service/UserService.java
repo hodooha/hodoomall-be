@@ -13,4 +13,6 @@ public interface UserService {
     UserDTO getUserByEmail(String email) throws Exception;
 
     UserDTO findById(String id) throws Exception;
+
+    void logout(User user) throws Exception;
 }
